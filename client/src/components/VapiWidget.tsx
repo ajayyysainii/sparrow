@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Orb, type AgentState } from './orb';
 import Vapi from '@vapi-ai/web';
+import { Phone, PhoneOff } from 'lucide-react';
 
 interface VapiWidgetProps {
   apiKey: string;
@@ -41,7 +44,6 @@ const VapiWidget: React.FC<VapiWidgetProps> = ({
       } else if (data?.role === 'user') {
         setIsUserSpeaking(true);
       } else {
-        // Default to assistant if no role specified
         setIsSpeaking(true);
       }
     });
@@ -54,13 +56,11 @@ const VapiWidget: React.FC<VapiWidgetProps> = ({
       } else if (data?.role === 'user') {
         setIsUserSpeaking(false);
       } else {
-        // Default to assistant if no role specified
         setIsSpeaking(false);
       }
     });
 
     vapiInstance.on('message', (message) => {
-      // Voice-only mode - no transcript display needed
       console.log('Message received:', message);
     });
 
@@ -75,7 +75,7 @@ const VapiWidget: React.FC<VapiWidgetProps> = ({
 
   const startCall = () => {
     if (vapi) {
-      const call =vapi.start(assistantId);
+      const call = vapi.start(assistantId);
       console.log('Call ID:', call);
     }
   };
@@ -87,126 +87,169 @@ const VapiWidget: React.FC<VapiWidgetProps> = ({
   };
 
   return (
-    <div className="w-full h-full min-h-[calc(100vh-200px)] bg-linear-to-br from-slate-50 to-slate-100 flex flex-col items-center justify-center font-sans p-6">
-      {!isConnected ? (
-        <div className="text-center max-w-lg">
-          <div className="w-30 h-30 rounded-3xl bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-indigo-500/30 transition-all duration-300 ease-out">
-            <span className="text-6xl">🤖</span>
-          </div>
-          
-          <h1 className="text-5xl font-bold mb-3 text-slate-900 tracking-tight">
-            AI Voice Assistant
-          </h1>
-          
-          <p className="text-xl text-slate-500 mb-12 leading-relaxed font-normal">
-            Start a natural voice conversation with your AI assistant
-          </p>
-          
-          <button
-            onClick={startCall}
-            className="bg-linear-to-r from-blue-500 to-blue-700 text-white border-0 rounded-3xl px-10 py-4 text-lg font-semibold cursor-pointer inline-flex items-center gap-2 transition-all duration-200 ease-out shadow-lg shadow-blue-500/30 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/40 tracking-tight"
+    <div className="w-full h-full min-h-[calc(100vh-200px)] bg-[#1C1C1E] flex flex-col items-center justify-center font-sans p-6">
+      <AnimatePresence mode="wait">
+        {!isConnected ? (
+          <motion.div
+            key="idle"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+            className="text-center max-w-lg"
           >
-            <span className="text-xl">🎤</span>
-            Start Call
-          </button>
-        </div>
-      ) : (
-        <div className="w-full max-w-6xl h-full flex gap-6 items-center justify-center relative">
-          {/* Agent Card */}
-          <div className={`flex-1 h-96 bg-white/80 backdrop-blur-xl rounded-3xl border border-white/50 flex flex-col items-center justify-center p-12 transition-all duration-300 ease-out relative overflow-hidden ${
-            isSpeaking 
-              ? 'shadow-2xl shadow-blue-500/25 ring-2 ring-blue-500/10' 
-              : 'shadow-2xl shadow-black/8'
-          }`}>
-            {/* Background gradient when speaking */}
-            {isSpeaking && (
-              <div className="absolute inset-0 bg-linear-to-br from-blue-500/5 to-indigo-500/5 animate-pulse"></div>
-            )}
-            
-            {/* Avatar */}
-            <div className={`w-44 h-44 rounded-full flex items-center justify-center transition-all duration-300 ease-out mb-8 ${
-              isSpeaking ? 'scale-105' : 'scale-100'
-            } ${
-              isSpeaking
-                ? 'bg-linear-to-br from-blue-500 to-purple-600 shadow-2xl shadow-blue-500/40 ring-8 ring-blue-500/10'
-                : 'bg-linear-to-br from-indigo-500 to-purple-600 shadow-2xl shadow-indigo-500/30'
-            }`}>
-              <span className="text-8xl">🤖</span>
-            </div>
-            
-            {/* Name */}
-            <h2 className="text-3xl font-bold text-slate-900 mb-2 tracking-tight">
-              AI Assistant
-            </h2>
-            
-            {/* Status */}
-            <div className="flex items-center gap-2 mt-4">
-              <div className={`w-2 h-2 rounded-full ${
-                isSpeaking ? 'bg-blue-500 animate-pulse shadow-lg shadow-blue-500/60' : 'bg-green-500'
-              }`}></div>
-              <span className="text-sm text-slate-500 font-medium">
-                {isSpeaking ? 'Speaking' : 'Listening'}
-              </span>
-            </div>
-          </div>
-
-          {/* User Card */}
-          <div className={`flex-1 h-96 bg-white/80 backdrop-blur-xl rounded-3xl border border-white/50 flex flex-col items-center justify-center p-12 transition-all duration-300 ease-out relative overflow-hidden ${
-            isUserSpeaking
-              ? 'shadow-2xl shadow-green-500/25 ring-2 ring-green-500/10'
-              : 'shadow-2xl shadow-black/8'
-          }`}>
-            {/* Background gradient when speaking */}
-            {isUserSpeaking && (
-              <div className="absolute inset-0 bg-linear-to-br from-green-500/5 to-indigo-500/5 animate-pulse"></div>
-            )}
-            
-            {/* Avatar */}
-            <div className={`w-44 h-44 rounded-full flex items-center justify-center transition-all duration-300 ease-out mb-8 ${
-              isUserSpeaking ? 'scale-105' : 'scale-100'
-            } ${
-              isUserSpeaking
-                ? 'bg-linear-to-br from-green-500 to-green-400 shadow-2xl shadow-green-500/40 ring-8 ring-green-500/10'
-                : 'bg-linear-to-br from-slate-400 to-slate-600 shadow-2xl shadow-slate-400/30'
-            }`}>
-              <span className="text-8xl">👤</span>
-            </div>
-            
-            {/* Name */}
-            <h2 className="text-3xl font-bold text-slate-900 mb-2 tracking-tight">
-              You
-            </h2>
-            
-            {/* Status */}
-            <div className="flex items-center gap-2 mt-4">
-              <div className={`w-2 h-2 rounded-full ${
-                isUserSpeaking ? 'bg-green-500 animate-pulse shadow-lg shadow-green-500/60' : 'bg-slate-400'
-              }`}></div>
-              <span className="text-sm text-slate-500 font-medium">
-                {isUserSpeaking ? 'Speaking' : 'Listening'}
-              </span>
-            </div>
-          </div>
-
-          {/* Bottom controls */}
-          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex gap-4 items-center">
-            <button
-              onClick={endCall}
-              className="bg-red-500 text-white border-0 rounded-full w-16 h-16 flex items-center justify-center cursor-pointer transition-all duration-200 ease-out shadow-lg shadow-red-500/30 hover:bg-red-600 hover:scale-110 hover:shadow-xl hover:shadow-red-500/40 text-3xl"
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
+              className="relative w-32 h-32 mx-auto mb-8"
             >
-              📞
-            </button>
-          </div>
-        </div>
-      )}
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-white/5 rounded-[2rem] backdrop-blur-xl"></div>
+              <div className="relative w-full h-full flex items-center justify-center">
+                <span className="text-8xl">🤖</span>
+                
+              </div>
+              
+              <motion.div
+                animate={{ 
+                  scale: [1, 1.1, 1],
+                  opacity: [0.3, 0.5, 0.3]
+                }}
+                transition={{ 
+                  duration: 2, 
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent rounded-[2rem]"
+              />
+            </motion.div>
+            
+            <motion.h1
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.3, duration: 0.4 }}
+              className="text-5xl font-bold mb-3 text-white tracking-tight"
+            >
+              AI Voice Assistant
+            </motion.h1>
+            
+            <motion.p
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.4, duration: 0.4 }}
+              className="text-xl text-[#A1A1AA] mb-12 leading-relaxed font-normal"
+            >
+              Start a natural voice conversation with your AI assistant
+            </motion.p>
+            
+            <motion.button
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.5, duration: 0.4 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={startCall}
+              className="bg-white text-gray-900 border-0 rounded-full px-8 py-4 text-lg font-semibold cursor-pointer inline-flex items-center gap-3 transition-all duration-200 shadow-lg shadow-black/20 hover:shadow-xl hover:shadow-black/30"
+            >
+              <Phone className="w-5 h-5" />
+              <span>Start Call</span>
+            </motion.button>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="connected"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="w-full max-w-6xl h-full flex flex-col items-center justify-center relative"
+          >
+            {/* Main Content Container */}
+            <div className="flex gap-6 items-center justify-center w-full">
+              {/* Agent Orb */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
+                className="flex-1 h-96 max-w-md bg-[#2C2C2E] rounded-3xl border border-[#3F3F46] p-12 relative overflow-hidden"
+              >
+                <div className="w-full h-full flex flex-col items-center justify-center">
+                  <div className="w-64 h-64 mb-6 relative">
+                    <Orb
+                      colors={["#3B82F6", "#60A5FA"]}
+                      agentState={(isSpeaking ? "talking" : "listening") as AgentState}
+                      seed={1000}
+                    />
+                  </div>
+                  {/* Name */}
+                  <h2 className="text-2xl font-bold text-white mb-2 tracking-tight">
+                    AI Assistant
+                  </h2>
+                  {/* Status */}
+                  <div className="flex items-center gap-2 mt-4">
+                    <div className={`w-2 h-2 rounded-full ${
+                      isSpeaking ? 'bg-white' : 'bg-green-500'
+                    }`} />
+                    <span className="text-sm text-[#A1A1AA] font-medium">
+                      {isSpeaking ? 'Speaking' : 'Listening'}
+                    </span>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* User Orb */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                className="flex-1 h-96 max-w-md bg-[#2C2C2E] rounded-3xl border border-[#3F3F46] p-12 relative overflow-hidden"
+              >
+                <div className="w-full h-full flex flex-col items-center justify-center">
+                  <div className="w-64 h-64 mb-6 relative">
+                    <Orb
+                      colors={["#10B981", "#34D399"]}
+                      agentState={(isUserSpeaking ? "talking" : "listening") as AgentState}
+                      seed={2000}
+                    />
+                  </div>
+                  {/* Name */}
+                  <h2 className="text-2xl font-bold text-white mb-2 tracking-tight">
+                    You
+                  </h2>
+                  {/* Status */}
+                  <div className="flex items-center gap-2 mt-4">
+                    <div className={`w-2 h-2 rounded-full ${
+                      isUserSpeaking ? 'bg-white' : 'bg-[#A1A1AA]'
+                    }`} />
+                    <span className="text-sm text-[#A1A1AA] font-medium">
+                      {isUserSpeaking ? 'Speaking' : 'Listening'}
+                    </span>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Bottom controls */}
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="absolute bottom-8 flex gap-4 items-center"
+            >
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={endCall}
+                className="bg-[#EF4444] text-white border-0 rounded-full w-16 h-16 flex items-center justify-center cursor-pointer transition-all duration-200 shadow-lg shadow-[#EF4444]/30 hover:shadow-xl hover:shadow-[#EF4444]/40"
+              >
+                <PhoneOff className="w-6 h-6" />
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
 
 export default VapiWidget;
-
-// Usage in your app:
-// <VapiWidget 
-//   apiKey="your_public_api_key" 
-//   assistantId="your_assistant_id" 
-// />

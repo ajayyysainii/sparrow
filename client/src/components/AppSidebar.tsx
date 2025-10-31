@@ -60,15 +60,12 @@ const AppSidebar: React.FC = () => {
 
   return (
     <Sidebar className="border-r border-[#3F3F46] bg-[#2C2C2E]">
-      <SidebarHeader className="border-b border-[#3F3F46]">
+      <SidebarHeader className="border-b border-[#3F3F46] flex items-center justify-center">
         <Link 
           to="/dashboard" 
           className="flex items-center gap-3 text-xl font-bold text-white no-underline hover:opacity-80 transition-opacity"
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#8B5CF6] to-[#7C3AED]">
-            <span className="text-xl">🤖</span>
-          </div>
-          <span>AI Voice</span>
+          <span>Sparrow</span>
         </Link>
       </SidebarHeader>
       
@@ -93,8 +90,8 @@ const AppSidebar: React.FC = () => {
                     variant="ghost"
                     className={`w-full justify-start gap-3 px-3 py-2.5 font-medium transition-all duration-200 ${
                       isActive
-                        ? 'bg-[#8B5CF6] text-white shadow-lg shadow-[#8B5CF6]/20'
-                        : 'text-[#A1A1AA] hover:bg-white/5 hover:text-white'
+                        ? 'bg-white text-gray-900 shadow-lg shadow-white/20'
+                        : 'text-[#A1A1AA] hover:bg-white/5'
                     }`}
                   >
                     <Icon className="h-5 w-5" />
@@ -111,20 +108,20 @@ const AppSidebar: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="mt-6 rounded-xl bg-gradient-to-br from-[#8B5CF6] to-[#7C3AED] p-4 text-white"
+          className="mt-6 rounded-xl bg-white p-4 text-gray-900"
         >
           <div className="flex items-start gap-3">
-            <div className="rounded-lg bg-white/20 p-2">
-              <Sparkles className="h-4 w-4" />
+            <div className="rounded-lg bg-gray-900/20 p-2">
+              <Sparkles className="h-4 w-4 text-gray-900" />
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-sm mb-1">Upgrade to Pro</h3>
-              <p className="text-xs text-white/80 mb-3">
+              <h3 className="font-semibold text-sm mb-1 text-gray-900">Upgrade to Pro</h3>
+              <p className="text-xs text-gray-700 mb-3">
                 Get unlimited calls and advanced analytics
               </p>
               <Button
                 size="sm"
-                className="w-full bg-white text-[#8B5CF6] hover:bg-white/90 font-semibold"
+                className="w-full bg-gray-900 text-white hover:bg-gray-800 font-semibold"
               >
                 Upgrade Now
               </Button>
@@ -134,27 +131,13 @@ const AppSidebar: React.FC = () => {
       </SidebarContent>
       
       <SidebarFooter className="border-t border-[#3F3F46] px-3 py-4">
-        <div className="space-y-2">
-          {/* Theme Toggle */}
-          <Button
-            variant="ghost"
-            className="w-full justify-start gap-3 text-[#A1A1AA] hover:text-white hover:bg-white/5"
-            onClick={toggleTheme}
-          >
-            {isDarkMode ? (
-              <Moon className="h-4 w-4" />
-            ) : (
-              <Sun className="h-4 w-4" />
-            )}
-            <span>{isDarkMode ? 'Dark Mode' : 'Light Mode'}</span>
-          </Button>
-          
+        <div className="space-y-2">        
           <Separator className="bg-[#3F3F46]" />
           
           {/* User Info */}
           {user && (
             <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5 transition-colors">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#8B5CF6] to-[#7C3AED] text-white text-xs font-semibold">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-gray-900 text-xs font-semibold">
                 {user.name
                   .split(' ')
                   .map((n) => n[0])
@@ -173,7 +156,7 @@ const AppSidebar: React.FC = () => {
           
           <Button
             variant="ghost"
-            className="w-full justify-start gap-3 text-[#A1A1AA] hover:text-white hover:bg-white/5"
+            className="w-full justify-start gap-3 text-[#A1A1AA] hover:bg-white/5"
             onClick={handleLogout}
           >
             <LogOut className="h-4 w-4" />

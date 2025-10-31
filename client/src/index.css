@@ -14,19 +14,19 @@
   --card-foreground: 0 0% 100%; /* #FFFFFF */
   --popover: 44 44 46; /* #2C2C2E */
   --popover-foreground: 0 0% 100%; /* #FFFFFF */
-  --primary: 259 94% 66%; /* #8B5CF6 */
+  --primary: 0 0% 100%; /* #FFFFFF */
   --primary-foreground: 0 0% 100%; /* #FFFFFF */
   --secondary: 44 44 46; /* #2C2C2E */
   --secondary-foreground: 0 0% 100%; /* #FFFFFF */
   --muted: 44 44 46; /* #2C2C2E */
   --muted-foreground: 0 0% 64%; /* #A1A1AA */
-  --accent: 259 94% 66%; /* #8B5CF6 */
+  --accent: 0 0% 100%; /* #FFFFFF */
   --accent-foreground: 0 0% 100%; /* #FFFFFF */
   --destructive: 0 84% 60%; /* #EF4444 */
   --destructive-foreground: 0 0% 100%; /* #FFFFFF */
   --border: 63 63 70; /* #3F3F46 */
   --input: 63 63 70; /* #3F3F46 */
-  --ring: 259 94% 66%; /* #8B5CF6 */
+  --ring: 0 0% 100%; /* #FFFFFF */
   --radius: 1rem;
   
   /* Custom colors */

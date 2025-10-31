@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 const HomePage: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] text-center">
-      <div className="w-32 h-32 rounded-3xl bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-indigo-500/30">
+      <div className="w-32 h-32 rounded-3xl bg-gray-200 flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-gray-500/30">
         <span className="text-8xl">🤖</span>
       </div>
       

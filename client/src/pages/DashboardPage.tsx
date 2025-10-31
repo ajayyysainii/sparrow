@@ -131,7 +131,7 @@ const DashboardPage: React.FC = () => {
         change: '+12.5%',
         trend: 'up',
         icon: Phone,
-        color: 'text-violet-400',
+        color: 'text-white',
       },
       {
         title: 'Active Users',
@@ -155,7 +155,7 @@ const DashboardPage: React.FC = () => {
         change: '+5.3%',
         trend: 'up',
         icon: TrendingUp,
-        color: 'text-purple-400',
+        color: 'text-white',
       },
     ],
     []
@@ -190,7 +190,7 @@ const DashboardPage: React.FC = () => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#A1A1AA]" />
               <Input
                 placeholder="Search calls, users, reports..."
-                className="pl-10 bg-[#1C1C1E] border-[#3F3F46] text-white placeholder:text-[#A1A1AA] focus:border-[#8B5CF6] focus:ring-[#8B5CF6]"
+                className="pl-10 bg-[#1C1C1E] border-[#3F3F46] text-white placeholder:text-[#A1A1AA] focus:border-white focus:ring-white"
               />
               <kbd className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:inline-flex h-6 items-center gap-1 rounded border border-[#3F3F46] bg-[#2C2C2E] px-2 font-mono text-[10px] text-[#A1A1AA]">
                 ⌘K
@@ -223,7 +223,7 @@ const DashboardPage: React.FC = () => {
               <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-[#EF4444]"></span>
             </Button>
 
-            <Button className="bg-[#8B5CF6] hover:bg-[#7C3AED] text-white">
+            <Button className="bg-white hover:bg-white/90 text-gray-900">
               Share Report
             </Button>
 
@@ -235,7 +235,7 @@ const DashboardPage: React.FC = () => {
                 >
                   <Avatar className="h-10 w-10 border-2 border-[#3F3F46]">
                     <AvatarImage src="" />
-                    <AvatarFallback className="bg-[#8B5CF6] text-white">
+                    <AvatarFallback className="bg-white text-gray-900">
                       {user ? getUserInitials(user.name) : 'U'}
                     </AvatarFallback>
                   </Avatar>
@@ -248,7 +248,7 @@ const DashboardPage: React.FC = () => {
                 <div className="flex items-center gap-3 px-2 py-3">
                   <Avatar className="h-10 w-10">
                     <AvatarImage src="" />
-                    <AvatarFallback className="bg-[#8B5CF6] text-white">
+                    <AvatarFallback className="bg-white text-gray-900">
                       {user ? getUserInitials(user.name) : 'U'}
                     </AvatarFallback>
                   </Avatar>
@@ -309,7 +309,7 @@ const DashboardPage: React.FC = () => {
                 whileHover={{ scale: 1.02 }}
                 className="group"
               >
-                <Card className="border-[#3F3F46] bg-[#2C2C2E] hover:border-[#8B5CF6]/50 transition-all duration-200 cursor-pointer">
+                <Card className="border-[#3F3F46] bg-[#2C2C2E] hover:border-white/50 transition-all duration-200 cursor-pointer">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium text-[#A1A1AA] uppercase tracking-wide">
                       {metric.title}
@@ -372,12 +372,12 @@ const DashboardPage: React.FC = () => {
                       >
                         <stop
                           offset="5%"
-                          stopColor="#8B5CF6"
+                          stopColor="#FFFFFF"
                           stopOpacity={0.3}
                         />
                         <stop
                           offset="95%"
-                          stopColor="#8B5CF6"
+                          stopColor="#FFFFFF"
                           stopOpacity={0}
                         />
                       </linearGradient>
@@ -404,7 +404,7 @@ const DashboardPage: React.FC = () => {
                     <Area
                       type="monotone"
                       dataKey="calls"
-                      stroke="#8B5CF6"
+                      stroke="#FFFFFF"
                       strokeWidth={2}
                       fill="url(#colorCalls)"
                     />
