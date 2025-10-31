@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
+import { useAuth } from '../contexts/AuthContext';
 
 interface CallReportProps {
   callId: string;
@@ -27,6 +28,7 @@ const CallReport: React.FC<CallReportProps> = ({ callId }) => {
   const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [report, setReport] = useState<ReportPayload | null>(null);
+  const { token } = useAuth();
 
   const apiBase = useMemo(() => import.meta.env.VITE_API_URL, []);
 
@@ -35,7 +37,11 @@ const CallReport: React.FC<CallReportProps> = ({ callId }) => {
     async function fetchStatus() {
       try {
         setError(null);
-        const res = await axios.get(`${apiBase}/call/call-report-status/${callId}`);
+        const headers: Record<string, string> = {};
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+        const res = await axios.get(`${apiBase}/call/call-report-status/${callId}`, { headers });
         if (!cancelled) setExists(Boolean(res.data?.exists));
       } catch (err: any) {
         // If status check fails, don't block UI; keep exists=false so user can try generate
@@ -46,13 +52,17 @@ const CallReport: React.FC<CallReportProps> = ({ callId }) => {
     return () => {
       cancelled = true;
     };
-  }, [apiBase, callId]);
+  }, [apiBase, callId, token]);
 
   const openAndFetch = async () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await axios.get<GetReportResponse>(`${apiBase}/call/call-report/${callId}`);
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+      const res = await axios.get<GetReportResponse>(`${apiBase}/call/call-report/${callId}`, { headers });
       setReport(res.data?.report || null);
       setExists(true);
       setIsOpen(true);

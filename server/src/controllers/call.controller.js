@@ -4,9 +4,19 @@ import Groq from "groq-sdk";
 import FormData from "form-data";
 import { Readable } from "stream";
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-});
+// Lazy initialization of Groq client to ensure env vars are loaded
+let groq = null;
+const getGroqClient = () => {
+  if (!groq) {
+    if (!process.env.GROQ_API_KEY) {
+      throw new Error("GROQ_API_KEY environment variable is not set");
+    }
+    groq = new Groq({
+      apiKey: process.env.GROQ_API_KEY,
+    });
+  }
+  return groq;
+};
 
 export class CallController {
   getCallList = async (req, res) => {
@@ -41,7 +51,6 @@ export class CallController {
 
       return res.status(200).json({ exists: true });
     } catch (error) {
-      console.error("Error in checkCallReportStatus:", error);
       res.status(500).json({ message: error.message });
     }
   };
@@ -90,10 +99,9 @@ export class CallController {
         });
 
         const vapiData = await vapiResponse.json();
-        console.log("Vapi call data:", vapiData);
         transcript = vapiData.transcript || vapiData.summary || "";
       } catch (error) {
-        console.error("Error fetching transcript from Vapi:", error);
+        // Error fetching transcript from Vapi
       }
 
       // Step 2: If no transcript from Vapi, download and transcribe using Groq
@@ -111,7 +119,6 @@ export class CallController {
           });
           formData.append("model", "whisper-large-v3");
 
-          console.log("Attempting Groq transcription...");
           const transcriptionResponse = await fetch(
             "https://api.groq.com/openai/v1/audio/transcriptions",
             {
@@ -124,22 +131,14 @@ export class CallController {
             }
           );
 
-          console.log(
-            "transcriptionResponse status:",
-            transcriptionResponse.status
-          );
-
           if (!transcriptionResponse.ok) {
             const errorText = await transcriptionResponse.text();
-            console.error("Transcription error response:", errorText);
             throw new Error(`Transcription failed: ${errorText}`);
           }
 
           const transcriptionData = await transcriptionResponse.json();
-          console.log("transcriptionData:", transcriptionData);
           transcript = transcriptionData.text || "";
         } catch (error) {
-          console.error("Error transcribing audio:", error);
           // Continue with empty transcript and let the LLM try to analyze
           transcript = "Unable to transcribe the audio recording.";
         }
@@ -171,7 +170,7 @@ Please provide your response in the following JSON format:
   ]
 }`;
 
-      const completion = await groq.chat.completions.create({
+      const completion = await getGroqClient().chat.completions.create({
         messages: [
           {
             role: "system",
@@ -201,7 +200,6 @@ Please provide your response in the following JSON format:
           throw new Error("No JSON found in AI response");
         }
       } catch (parseError) {
-        console.error("Error parsing AI response:", parseError);
         // Fallback to default values
         reportData = {
           sentimentAnalysis: "Neutral",
@@ -230,7 +228,6 @@ Please provide your response in the following JSON format:
         report,
       });
     } catch (error) {
-      console.error("Error in getCallReport:", error);
       res.status(500).json({ message: error.message });
     }
   };
@@ -239,7 +236,6 @@ Please provide your response in the following JSON format:
 // POLLING FUNCTION (STATIC METHOD)
 export async function pollAndSyncVapiCalls() {
   try {
-    console.log("Polling Vapi API...");
     const response = await fetch("https://api.vapi.ai/call", {
       method: "GET",
       headers: {
@@ -279,9 +275,7 @@ export async function pollAndSyncVapiCalls() {
       const callData = { callid, duration, callrecording_url, cost, time };
       await Call.updateOne({ callid }, { $set: callData }, { upsert: true });
     }
-    // Optional: log that sync completed
-    // console.log(`Vapi call sync complete: ${callArray.length} calls processed`);
   } catch (err) {
-    console.error("Polling Vapi API failed:", err);
+    // Polling Vapi API failed
   }
 }

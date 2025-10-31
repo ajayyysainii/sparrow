@@ -1,1 +1,35 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@layer base {
+  body {
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+:root {
+  --background: 28 28 30; /* #1C1C1E */
+  --foreground: 0 0% 100%; /* #FFFFFF */
+  --card: 44 44 46; /* #2C2C2E */
+  --card-foreground: 0 0% 100%; /* #FFFFFF */
+  --popover: 44 44 46; /* #2C2C2E */
+  --popover-foreground: 0 0% 100%; /* #FFFFFF */
+  --primary: 259 94% 66%; /* #8B5CF6 */
+  --primary-foreground: 0 0% 100%; /* #FFFFFF */
+  --secondary: 44 44 46; /* #2C2C2E */
+  --secondary-foreground: 0 0% 100%; /* #FFFFFF */
+  --muted: 44 44 46; /* #2C2C2E */
+  --muted-foreground: 0 0% 64%; /* #A1A1AA */
+  --accent: 259 94% 66%; /* #8B5CF6 */
+  --accent-foreground: 0 0% 100%; /* #FFFFFF */
+  --destructive: 0 84% 60%; /* #EF4444 */
+  --destructive-foreground: 0 0% 100%; /* #FFFFFF */
+  --border: 63 63 70; /* #3F3F46 */
+  --input: 63 63 70; /* #3F3F46 */
+  --ring: 259 94% 66%; /* #8B5CF6 */
+  --radius: 1rem;
+  
+  /* Custom colors */
+  --positive: 142 76% 36%; /* #22C55E */
+  --negative: 0 84% 60%; /* #EF4444 */
+}

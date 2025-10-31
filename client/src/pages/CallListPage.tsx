@@ -3,7 +3,7 @@ import CallList from '../components/CallList';
 
 const CallListPage: React.FC = () => {
   return (
-    <div className="flex justify-center items-start min-h-[calc(100vh-200px)] py-6">
+    <div className="w-full max-w-full">
       <CallList 
         apiKey={import.meta.env.VITE_VAPI_API_KEY_PRIVATE}
         onCallSelect={(call) => {

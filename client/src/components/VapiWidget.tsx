@@ -87,7 +87,7 @@ const VapiWidget: React.FC<VapiWidgetProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 w-screen h-screen bg-linear-to-br from-slate-50 to-slate-100 flex flex-col items-center justify-center font-sans z-50 p-6">
+    <div className="w-full h-full min-h-[calc(100vh-200px)] bg-linear-to-br from-slate-50 to-slate-100 flex flex-col items-center justify-center font-sans p-6">
       {!isConnected ? (
         <div className="text-center max-w-lg">
           <div className="w-30 h-30 rounded-3xl bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-indigo-500/30 transition-all duration-300 ease-out">

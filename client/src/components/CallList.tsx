@@ -3,6 +3,7 @@ import AudioPlayer, { RHAP_UI } from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
 import axios from 'axios';
 import CallReport from './CallReport';
+import { useAuth } from '../contexts/AuthContext';
 
 interface Call {
   id: string;
@@ -42,10 +43,11 @@ const CallList: React.FC<CallListProps> = ({ apiKey, onCallSelect }) => {
   const [error, setError] = useState<string | null>(null);
   const [selectedCall, setSelectedCall] = useState<Call | null>(null);
   const [playingCallId, setPlayingCallId] = useState<string | null>(null);
+  const { token } = useAuth();
 
   useEffect(() => {
     fetchCalls();
-  }, [apiKey]);
+  }, [apiKey, token]);
 
   // Map backend call object to UI Call interface
   const mapBackendCallToCall: (backendCall: any) => Call = (backendCall) => ({
@@ -72,10 +74,16 @@ const CallList: React.FC<CallListProps> = ({ apiKey, onCallSelect }) => {
       setError(null);
 
       // Use axios for API call
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
       const response = await axios.get(`${import.meta.env.VITE_API_URL}/call/call-list`, {
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers,
       });
 
       // axios stores response data in .data
@@ -215,7 +223,7 @@ const CallList: React.FC<CallListProps> = ({ apiKey, onCallSelect }) => {
   }
 
   return (
-    <div className="bg-white/80 backdrop-blur-xl rounded-3xl border min-w-screen border-white/50 shadow-2xl shadow-black/8 p-8 overflow-hidden flex flex-col">
+    <div className="w-full bg-white/80 backdrop-blur-xl rounded-3xl border border-white/50 shadow-2xl shadow-black/8 p-8 overflow-hidden flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between mb-6 pb-4 border-b border-black/10">
         <h2 className="text-3xl font-bold text-slate-900 m-0 tracking-tight">
