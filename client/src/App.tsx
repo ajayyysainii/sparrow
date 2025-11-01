@@ -18,6 +18,7 @@ import TongueTwistersPage from './pages/TongueTwistersPage';
 import LipTrillsPage from './pages/LipTrillsPage';
 import DictionPracticePage from './pages/DictionPracticePage';
 import LandingPage from './pages/LandingPage';
+import HealthCheck from './components/HealthCheck';
 import { AuthProvider } from './contexts/AuthContext';
 import "./App.css";
 
@@ -133,6 +134,13 @@ function App() {
             <Layout>
               <ProtectedRoute>
                 <DictionPracticePage />
+              </ProtectedRoute>
+            </Layout>
+          } />
+          <Route path="/health" element={
+            <Layout>
+              <ProtectedRoute>
+                <HealthCheck />
               </ProtectedRoute>
             </Layout>
           } />

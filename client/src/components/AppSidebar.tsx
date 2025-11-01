@@ -18,7 +18,8 @@ import {
   Wind,
   ChevronRight,
   Music,
-  Mic
+  Mic,
+  Heart
 } from 'lucide-react';
 
 const AppSidebar: React.FC = () => {
@@ -105,6 +106,11 @@ const AppSidebar: React.FC = () => {
       title: 'Call History',
       href: '/dashboard/call/list',
       icon: List,
+    },
+    {
+      title: 'Voice Health Check',
+      href: '/health',
+      icon: Heart,
     },
     {
       title: 'Upgrade to Pro',
