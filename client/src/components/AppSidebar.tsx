@@ -47,7 +47,7 @@ const AppSidebar: React.FC = () => {
       icon: Home,
     },
     {
-      title: 'Make Call',
+      title: 'Call with AI',
       href: '/dashboard/call',
       icon: Phone,
     },

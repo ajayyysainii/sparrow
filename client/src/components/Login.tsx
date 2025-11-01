@@ -1,13 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
+import { SignInPage, type Testimonial } from './ui/sign-in';
 
 const Login: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login, isAuthenticated } = useAuth();
 
@@ -17,10 +14,12 @@ const Login: React.FC = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError('');
-    setLoading(true);
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
 
     try {
       const response = await axios.post(
@@ -32,71 +31,47 @@ const Login: React.FC = () => {
       login(token, user);
       navigate('/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
-    } finally {
-      setLoading(false);
+      alert(err.response?.data?.message || 'Login failed. Please try again.');
     }
   };
 
+  const handleResetPassword = () => {
+    alert('Password reset functionality coming soon!');
+  };
+
+  const handleCreateAccount = () => {
+    navigate('/signup');
+  };
+
+  const sampleTestimonials: Testimonial[] = [
+    // {
+    //   avatarSrc: "https://randomuser.me/api/portraits/women/57.jpg",
+    //   name: "Sarah Chen",
+    //   handle: "@sarahdigital",
+    //   text: "Amazing platform! The voice interactions are seamless and the AI responses are exactly what I needed."
+    // },
+    // {
+    //   avatarSrc: "https://randomuser.me/api/portraits/men/64.jpg",
+    //   name: "Marcus Johnson",
+    //   handle: "@marcustech",
+    //   text: "This service has transformed how I work. Clean design, powerful features, and excellent AI quality."
+    // },
+    // {
+    //   avatarSrc: "https://randomuser.me/api/portraits/men/32.jpg",
+    //   name: "David Martinez",
+    //   handle: "@davidcreates",
+    //   text: "I've tried many platforms, but this one stands out. Intuitive, reliable, and genuinely helpful."
+    // },
+  ];
+
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
-      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
-        <h2 className="text-3xl font-bold text-slate-900 mb-6 text-center">Login</h2>
-        
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-2">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-              placeholder="Enter your email"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-2">
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-              placeholder="Enter your password"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-gradient-to-r from-blue-500 to-blue-700 text-white py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-blue-800 transition-all duration-200 shadow-lg shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
-        </form>
-
-        <p className="mt-6 text-center text-slate-600">
-          Don't have an account?{' '}
-          <Link to="/signup" className="text-blue-600 hover:text-blue-700 font-semibold">
-            Sign up
-          </Link>
-        </p>
-      </div>
-    </div>
+    <SignInPage
+      heroImageSrc="https://images.unsplash.com/photo-1642615835477-d303d7dc9ee9?w=2160&q=80"
+      testimonials={sampleTestimonials}
+      onSignIn={handleSubmit}
+      onResetPassword={handleResetPassword}
+      onCreateAccount={handleCreateAccount}
+    />
   );
 };
 

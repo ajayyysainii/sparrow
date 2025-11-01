@@ -18,12 +18,8 @@ function App() {
           {/* Landing Page - Public (no Layout wrapper) */}
           <Route path="/" element={<LandingPage />} />
           
-          {/* Other routes with Layout */}
-          <Route path="/login" element={
-            <Layout>
-              <Login />
-            </Layout>
-          } />
+          {/* Auth routes without Layout */}
+          <Route path="/login" element={<Login />} />
           <Route path="/signup" element={
             <Layout>
               <Signup />
