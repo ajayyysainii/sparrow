@@ -1,31 +1,14 @@
 import mongoose from 'mongoose';
 
 const callSchema = new mongoose.Schema({
-  duration: {
-    type: Number,
-    required: false,
-  },
   userId: {
     type: String,
-    required: false,
+    required: true,
   },
   callid: {
     type: String,
-    required: false,
+    required: true,
     unique: true,
-  },
-  callrecording_url: {
-    type: String,
-    required: false,
-  },
-  cost: {
-    type: Number,
-    required: false,
-  },
-  time: {
-    type: Date,
-    required: false,
-    default: Date.now,
   },
 });
 

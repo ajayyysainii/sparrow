@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Orb, type AgentState } from './orb';
 import Vapi from '@vapi-ai/web';
 import { Phone, PhoneOff } from 'lucide-react';
+import axios from 'axios';
+import { useAuth } from '../contexts/AuthContext';
 
 interface VapiWidgetProps {
   apiKey: string;
@@ -18,15 +20,45 @@ const VapiWidget: React.FC<VapiWidgetProps> = ({
   const [isConnected, setIsConnected] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isUserSpeaking, setIsUserSpeaking] = useState(false);
+  const [isCreatingCall, setIsCreatingCall] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { token } = useAuth();
 
   useEffect(() => {
     const vapiInstance = new Vapi(apiKey);
     setVapi(vapiInstance);
 
     // Event listeners
-    vapiInstance.on('call-start', () => {
-      console.log('Call started');
+    vapiInstance.on('call-start', async (...args: any[]) => {
+      console.log('Call started', args);
       setIsConnected(true);
+      setIsCreatingCall(false);
+
+      // Save call to server with userId
+      try {
+        const data = args[0] || {};
+        const callId = data?.call?.id || data?.id || data?.callId;
+        
+        if (callId && token) {
+          const headers: Record<string, string> = {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          };
+
+          await axios.post(
+            `${import.meta.env.VITE_API_URL}/call/save`,
+            { callid: callId },
+            { headers }
+          );
+
+          console.log('Call saved to server with userId:', callId);
+        } else if (!callId) {
+          console.warn('No callId found in call-start event:', data);
+        }
+      } catch (err: any) {
+        console.error('Error saving call to server:', err);
+        // Don't show error to user as call is still working
+      }
     });
 
     vapiInstance.on('call-end', () => {
@@ -73,10 +105,46 @@ const VapiWidget: React.FC<VapiWidgetProps> = ({
     };
   }, [apiKey]);
 
-  const startCall = () => {
-    if (vapi) {
-      const call = vapi.start(assistantId);
-      console.log('Call ID:', call);
+  const startCall = async () => {
+    try {
+      setIsCreatingCall(true);
+      setError(null);
+
+      // Start call using Vapi SDK (handles WebRTC connection)
+      if (!vapi) {
+        throw new Error('Vapi instance not initialized');
+      }
+
+      // Start the call - the call-start event listener will handle saving to server
+      // Try to get callId from the returned promise/object
+      const callResult = await vapi.start(assistantId);
+      console.log('Vapi SDK call starting...', callResult);
+
+      // Also try to save immediately if we get callId from the result
+      if (callResult && typeof callResult === 'object') {
+        const immediateCallId = (callResult as any)?.id || (callResult as any)?.call?.id;
+        if (immediateCallId && token) {
+          try {
+            const headers: Record<string, string> = {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`,
+            };
+            await axios.post(
+              `${import.meta.env.VITE_API_URL}/call/save`,
+              { callid: immediateCallId },
+              { headers }
+            );
+            console.log('Call saved immediately with userId:', immediateCallId);
+          } catch (err) {
+            console.error('Error saving call immediately:', err);
+          }
+        }
+      }
+
+    } catch (err: any) {
+      console.error('Error starting call:', err);
+      setError(err?.response?.data?.message || err?.message || 'Failed to start call');
+      setIsCreatingCall(false);
     }
   };
 
@@ -149,11 +217,21 @@ const VapiWidget: React.FC<VapiWidgetProps> = ({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={startCall}
-              className="bg-white text-gray-900 border-0 rounded-full px-8 py-4 text-lg font-semibold cursor-pointer inline-flex items-center gap-3 transition-all duration-200 shadow-lg shadow-black/20 hover:shadow-xl hover:shadow-black/30"
+              disabled={isCreatingCall}
+              className="bg-white text-gray-900 border-0 rounded-full px-8 py-4 text-lg font-semibold cursor-pointer inline-flex items-center gap-3 transition-all duration-200 shadow-lg shadow-black/20 hover:shadow-xl hover:shadow-black/30 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Phone className="w-5 h-5" />
-              <span>Start Call</span>
+              <span>{isCreatingCall ? 'Creating Call...' : 'Start Call'}</span>
             </motion.button>
+            {error && (
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-4 text-red-400 text-sm"
+              >
+                {error}
+              </motion.p>
+            )}
           </motion.div>
         ) : (
           <motion.div

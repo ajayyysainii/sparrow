@@ -98,6 +98,9 @@ const AppSidebar: React.FC = () => {
             );
           })}
         </nav>
+
+        {/* Upgrade Card */}
+      
       </SidebarContent>
       
       <SidebarFooter className="border-t border-[#3F3F46] px-3 py-4">
