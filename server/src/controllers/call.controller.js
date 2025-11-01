@@ -367,5 +367,38 @@ Please provide your response in the following JSON format:
       res.status(500).json({ message: error.message });
     }
   };
+
+  // Get total cost of all calls for the authenticated user
+  getTotalCost = async (req, res) => {
+    try {
+      // Filter calls by userId
+      const query = {};
+      if (req.user && req.user.userId) {
+        query.userId = req.user.userId;
+      }
+      
+      const calls = await Call.find(query).sort({ _id: -1 });
+      
+      // Fetch details from Vapi API for each call and calculate total cost
+      let totalCost = 0;
+      await Promise.all(
+        calls.map(async (call) => {
+          const vapiDetails = await fetchCallDetailsFromVapi(call.callid);
+          
+          // Only include calls that have a cost
+          if (vapiDetails && vapiDetails.cost && typeof vapiDetails.cost === 'number') {
+            totalCost += vapiDetails.cost;
+          }
+        })
+      );
+      
+      res.status(200).json({ 
+        totalCost: totalCost.toFixed(2),
+        currency: 'USD'
+      });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  };
 }
 

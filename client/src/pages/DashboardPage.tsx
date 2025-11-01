@@ -12,16 +12,26 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
   Search,
   Bell,
   Calendar,
   Filter,
   TrendingUp,
-  Phone,
-  Users,
-  Clock,
   ChevronUp,
   ChevronDown,
+  User,
+  LogOut,
+  Flame,
+  Star,
+  DollarSign,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -44,6 +54,8 @@ const DashboardPage: React.FC = () => {
   const [calls, setCalls] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [stats, setStats] = useState<{ streak: number; totalPoints: number } | null>(null);
+  const [totalCost, setTotalCost] = useState<number>(0);
 
   // Fetch real call data from API
   useEffect(() => {
@@ -76,24 +88,82 @@ const DashboardPage: React.FC = () => {
     fetchCalls();
   }, [token]);
 
+  // Fetch stats data from API
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json",
+        };
+        
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/stats`, {
+          headers,
+        });
+
+        setStats({
+          streak: response.data.streak || 0,
+          totalPoints: response.data.totalPoints || 0,
+        });
+      } catch (err: any) {
+        console.error('Error fetching stats:', err);
+        // Set default values on error
+        setStats({ streak: 0, totalPoints: 0 });
+      }
+    };
+
+    if (token) {
+      fetchStats();
+    }
+  }, [token]);
+
+  // Fetch total cost from API
+  useEffect(() => {
+    const fetchTotalCost = async () => {
+      try {
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json",
+        };
+        
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/call/total-cost`, {
+          headers,
+        });
+
+        setTotalCost(parseFloat(response.data.totalCost) || 0);
+      } catch (err: any) {
+        console.error('Error fetching total cost:', err);
+        // Set default value on error
+        setTotalCost(0);
+      }
+    };
+
+    if (token) {
+      fetchTotalCost();
+    }
+  }, [token]);
+
   // Process real calls for table display (top 5 most recent)
   const recentCalls = useMemo(() => {
     return calls
       .slice(0, 5)
-      .map((call, index) => {
-        const callId = call.callid || call._id || String(index);
-        return {
-          id: callId,
-          caller: `Call ${callId.slice(-8)}`,
-          duration: call.duration 
-            ? `${Math.floor(call.duration / 60)}:${String(Math.floor(call.duration % 60)).padStart(2, '0')}`
-            : 'N/A',
-          cost: call.cost !== undefined ? call.cost : 0,
-          sentiment: 'positive', // TODO: Get from report if available
-          date: call.time ? new Date(call.time).toLocaleDateString() : 'N/A',
-          status: 'completed',
-        };
-      });
+      .map((call, index) => ({
+        id: call.callid || call._id || index,
+        caller: `Call ${index + 1}`,
+        duration: call.duration 
+          ? `${Math.floor(call.duration / 60)}:${String(Math.floor(call.duration % 60)).padStart(2, '0')}`
+          : 'N/A',
+        sentiment: 'positive', // TODO: Get from report if available
+        date: call.time ? new Date(call.time).toLocaleDateString() : 'N/A',
+        status: 'completed',
+        cost: call.cost || undefined,
+      }));
   }, [calls]);
 
   // Mock data for charts and metrics
@@ -123,43 +193,41 @@ const DashboardPage: React.FC = () => {
   const metrics = useMemo(
     () => [
       {
-        title: 'Total Calls',
-        value: '1,247',
-        change: '+12.5%',
-        trend: 'up',
-        icon: Phone,
-        color: 'text-white',
-        decreaseIsGood: false, // Increase is good
+        title: 'Streak',
+        value: stats?.streak?.toString() || '0',
+        change: '+0',
+        trend: 'up' as const,
+        icon: Flame,
+        color: 'text-orange-400',
       },
       {
-        title: 'Active Users',
-        value: '892',
-        change: '+8.2%',
-        trend: 'up',
-        icon: Users,
+        title: 'Points',
+        value: stats?.totalPoints?.toString() || '0',
+        change: '+0',
+        trend: 'up' as const,
+        icon: Star,
+        color: 'text-yellow-400',
+      },
+      {
+        title: 'Total Cost',
+        value: `$${totalCost.toFixed(2)}`,
+        change: '',
+        trend: 'up' as const,
+        icon: DollarSign,
         color: 'text-green-400',
         decreaseIsGood: false, // Increase is good
-      },
-      {
-        title: 'Avg Call Duration',
-        value: '18:32',
-        change: '-3.1%',
-        trend: 'down',
-        icon: Clock,
-        color: 'text-blue-400',
-        decreaseIsGood: false, // Decrease is bad
       },
       {
         title: 'Resolution Rate',
         value: '94%',
         change: '+5.3%',
-        trend: 'up',
+        trend: 'up' as const,
         icon: TrendingUp,
         color: 'text-white',
         decreaseIsGood: false, // Increase is good
       },
     ],
-    []
+    [stats, totalCost]
   );
 
 
@@ -261,21 +329,22 @@ const DashboardPage: React.FC = () => {
                       <CardTitle className="text-3xl font-bold">
                         {metric.value}
                       </CardTitle>
-                      <div
-                        className={`flex items-center gap-1 text-sm font-medium ${
-                          (metric.trend === 'up' && !metric.decreaseIsGood) ||
-                          (metric.trend === 'down' && metric.decreaseIsGood)
-                            ? 'text-[#22C55E]'
-                            : 'text-[#EF4444]'
-                        }`}
-                      >
-                        {metric.trend === 'up' ? (
-                          <ChevronUp className="h-4 w-4" />
-                        ) : (
-                          <ChevronDown className="h-4 w-4" />
-                        )}
-                        {metric.change}
-                      </div>
+                      {metric.change && (
+                        <div
+                          className={`flex items-center gap-1 text-sm font-medium ${
+                            metric.trend === 'up'
+                              ? 'text-[#22C55E]'
+                              : 'text-[#EF4444]'
+                          }`}
+                        >
+                          {metric.trend === 'up' ? (
+                            <ChevronUp className="h-4 w-4" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4" />
+                          )}
+                          {metric.change}
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>

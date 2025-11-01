@@ -507,31 +507,37 @@ def is_within_range(value, parameter_key, gender=None):
     
     return range_values[0] <= value <= range_values[1]
 
-# Constants for styling
-BRAND_COLOR = '#FF1493'
-HEADER_COLOR = (255, 20, 147)
-SUBHEADER_COLOR = (255, 182, 193)
-LOGO_PATH = "audihealth_logo.jpg"
+# Constants for styling - Apple Design System
+# Apple System Colors
+SYSTEM_BLUE = (0, 122, 255)  # Apple's primary blue
+SYSTEM_GRAY_DARK = (28, 28, 30)  # Dark gray for text
+SYSTEM_GRAY_LIGHT = (142, 142, 147)  # Light gray for secondary text
+SYSTEM_GRAY_BACKGROUND = (242, 242, 247)  # Background gray
+SYSTEM_GREEN = (52, 199, 89)  # Success green
+SYSTEM_RED = (255, 59, 48)  # Error red
+SYSTEM_WHITE = (255, 255, 255)
+LOGO_PATH = "sparrow_logo.jpg"
 
 class VoicePathologyPDF(FPDF):
     def header(self):
+        # Clean header with generous white space
+        self.set_fill_color(*SYSTEM_GRAY_BACKGROUND)
+        self.rect(0, 0, 210, 40, 'F')  # Header background
+        
         if os.path.exists(LOGO_PATH):
-            self.image(LOGO_PATH, 10, 8, 15)
+            self.image(LOGO_PATH, 15, 10, 20)
 
-        self.set_xy(25, 12)
-        self.set_font('Arial', 'B', 20)
-        self.set_text_color(*HEADER_COLOR)
-        self.cell(60, 10, 'AudiHealth', 0, 0, 'L')
+        self.set_xy(40, 12)
+        self.set_font('Arial', 'B', 24)
+        self.set_text_color(*SYSTEM_GRAY_DARK)
+        self.cell(60, 12, 'Sparrow', 0, 0, 'L')
 
-        self.set_xy(140, 12)
-        self.set_font('Arial', 'B', 12)
-        self.set_text_color(0, 0, 0)
-        self.cell(0, 10, 'Voice Pathology Analysis Report', 0, 1, 'R')
+        self.set_xy(15, 28)
+        self.set_font('Arial', '', 11)
+        self.set_text_color(*SYSTEM_GRAY_LIGHT)
+        self.cell(0, 8, 'Voice Pathology Analysis Report', 0, 1, 'L')
 
-        self.ln(3)
-        self.set_line_width(0.4)
-        self.line(10, 30, 200, 30)
-        self.ln(15)
+        self.ln(18)  # More spacing after header
 
     def colored_cell(self, w, h, txt, value, parameter_name, gender=None):
         """Create a cell with color based on whether the value is within normal range"""
@@ -540,61 +546,102 @@ class VoicePathologyPDF(FPDF):
         
         parameter_key = get_parameter_key(parameter_name)
         if parameter_key and is_within_range(value, parameter_key, gender):
-            self.set_text_color(0, 128, 0)
+            self.set_text_color(*SYSTEM_GREEN)
         else:
-            self.set_text_color(255, 0, 0)
+            self.set_text_color(*SYSTEM_RED)
             
-        self.cell(w, h, txt, 1, 0, 'L')
-        self.set_text_color(0, 0, 0)
+        self.cell(w, h, txt, 0, 0, 'L')  # No border for cleaner look
+        self.set_text_color(*SYSTEM_GRAY_DARK)
 
     def footer(self):
-        self.set_y(-15)
-        self.set_font('Arial', 'I', 8)
-        self.set_text_color(*HEADER_COLOR)
-        self.cell(0, 10, f'Page {self.page_no()}/{{nb}} - AudiHealth Voice Analysis', 0, 0, 'C')
+        self.set_y(-18)
+        self.set_font('Arial', '', 9)
+        self.set_text_color(*SYSTEM_GRAY_LIGHT)
+        self.cell(0, 8, f'Page {self.page_no()}/{{nb}} | Sparrow Voice Analysis', 0, 0, 'C')
 
     def chapter_title(self, title):
-        self.set_font('Arial', 'B', 12)
-        self.set_fill_color(*SUBHEADER_COLOR)
-        self.set_text_color(0, 0, 0)
-        self.cell(0, 6, title, 0, 1, 'L', 1)
-        self.ln(4)
+        """Apple-style section header with clean typography"""
+        self.ln(8)  # Generous spacing before section
+        self.set_font('Arial', 'B', 18)
+        self.set_text_color(*SYSTEM_GRAY_DARK)
+        self.cell(0, 10, title, 0, 1, 'L')
+        
+        # Subtle underline
+        self.set_line_width(0.5)
+        self.set_draw_color(*SYSTEM_GRAY_LIGHT)
+        current_y = self.get_y()
+        self.line(15, current_y, 195, current_y)
+        
+        self.ln(12)  # Generous spacing after header
 
     def chapter_body(self, text):
-        self.set_font('Arial', '', 11)
-        self.set_text_color(0, 0, 0)
+        """Clean body text with proper line height"""
+        self.set_font('Arial', '', 12)
+        self.set_text_color(*SYSTEM_GRAY_DARK)
         sections = text.split('**')
         for i, section in enumerate(sections):
             if i % 2 == 0:
-                self.set_font('Arial', '', 11)
+                self.set_font('Arial', '', 12)
+                self.set_text_color(*SYSTEM_GRAY_DARK)
             else:
-                self.set_font('Arial', 'B', 11)
-            self.multi_cell(0, 5, section)
-        self.ln()
+                self.set_font('Arial', 'B', 12)
+                self.set_text_color(*SYSTEM_GRAY_DARK)
+            self.multi_cell(0, 6, section)  # Better line height
+            self.ln(2)  # Small spacing between paragraphs
+        self.ln(8)
 
 def create_pdf_report(audio_path, prediction, probabilities, report_text, features, output_pdf='medical_report.pdf', gender=None):
     pdf = VoicePathologyPDF()
     pdf.alias_nb_pages()
     pdf.add_page()
 
+    # Patient Information Section - Apple style cards
     pdf.chapter_title('Patient Information')
+    
+    # Card-style information boxes
+    card_y = pdf.get_y()
+    pdf.set_fill_color(*SYSTEM_GRAY_BACKGROUND)
+    pdf.rect(15, card_y, 180, 20, 'F')  # Background card
+    
+    pdf.set_xy(20, card_y + 6)
     pdf.set_font('Arial', '', 11)
-    pdf.cell(0, 6, f"Analysis Date: {datetime.now().strftime('%Y-%m-%d')}", 0, 1)
-    pdf.cell(0, 6, f"Predicted Condition: {prediction} ({probabilities[prediction]})", 0, 1)
-    pdf.ln(5)
-
-    pdf.chapter_title('Acoustic Measurements')
-
-    col_widths = [pdf.w/3, pdf.w/4, pdf.w/4, pdf.w/4]
+    pdf.set_text_color(*SYSTEM_GRAY_LIGHT)
+    pdf.cell(40, 6, 'Analysis Date:', 0, 0, 'L')
+    pdf.set_text_color(*SYSTEM_GRAY_DARK)
+    pdf.cell(0, 6, datetime.now().strftime('%Y-%m-%d'), 0, 1, 'L')
+    
+    pdf.set_xy(20, card_y + 12)
+    pdf.set_text_color(*SYSTEM_GRAY_LIGHT)
+    pdf.cell(40, 6, 'Predicted Condition:', 0, 0, 'L')
+    pdf.set_text_color(*SYSTEM_BLUE)
     pdf.set_font('Arial', 'B', 11)
-    pdf.set_fill_color(*SUBHEADER_COLOR)
-    headers = ['Parameter', 'Value', 'Normal Range', 'Unit']
-    for i, header in enumerate(headers):
-        pdf.cell(col_widths[i], 7, header, 1, 0, 'L', True)
-    pdf.ln()
+    pdf.cell(0, 6, f"{prediction} ({probabilities[prediction]})", 0, 1, 'L')
+    
+    pdf.set_y(card_y + 20)
+    pdf.ln(12)
 
-    # FIXED: Updated measurements with correct parameter names and ranges
-    pdf.set_font('Arial', '', 11)
+    # Acoustic Measurements - Apple-style clean table
+    pdf.chapter_title('Acoustic Measurements')
+    
+    # Table header with subtle background
+    pdf.set_fill_color(*SYSTEM_GRAY_BACKGROUND)
+    pdf.set_text_color(*SYSTEM_GRAY_DARK)
+    pdf.set_font('Arial', 'B', 10)
+    
+    # Header row
+    header_y = pdf.get_y()
+    pdf.rect(15, header_y, 180, 8, 'F')  # Header background
+    
+    col_widths = [90, 35, 35, 20]
+    headers = ['Parameter', 'Value', 'Normal Range', 'Unit']
+    
+    pdf.set_xy(18, header_y + 2)
+    for i, header in enumerate(headers):
+        pdf.cell(col_widths[i], 6, header, 0, 0, 'L')
+    pdf.ln(10)
+
+    # Measurements rows - clean, borderless design
+    pdf.set_font('Arial', '', 10)
     measurements = [
         ['Fundamental Frequency (Mean)', 
          f"{features['Fundamental_Frequency_Mean']:.2f}",
@@ -630,25 +677,51 @@ def create_pdf_report(audio_path, prediction, probabilities, report_text, featur
          'Hz']
     ]
 
-    for row in measurements:
+    for idx, row in enumerate(measurements):
         display_name = row[0]
         value = float(row[1])
+        row_y = pdf.get_y()
         
-        pdf.cell(col_widths[0], 7, row[0], 1, 0, 'L')
-        pdf.colored_cell(col_widths[1], 7, row[1], value, display_name, gender)
-        pdf.cell(col_widths[2], 7, row[2], 1, 0, 'L')
-        pdf.cell(col_widths[3], 7, row[3], 1, 0, 'L')
-        pdf.ln()
+        # Alternating row backgrounds for better readability
+        if idx % 2 == 0:
+            pdf.set_fill_color(*SYSTEM_WHITE)
+        else:
+            pdf.set_fill_color(*SYSTEM_GRAY_BACKGROUND)
+        pdf.rect(15, row_y, 180, 8, 'F')
+        
+        pdf.set_xy(18, row_y + 2)
+        pdf.set_text_color(*SYSTEM_GRAY_DARK)
+        pdf.cell(col_widths[0], 6, row[0], 0, 0, 'L')
+        
+        # Value with color coding
+        pdf.set_xy(18 + col_widths[0], row_y + 2)
+        pdf.colored_cell(col_widths[1], 6, row[1], value, display_name, gender)
+        
+        pdf.set_xy(18 + col_widths[0] + col_widths[1], row_y + 2)
+        pdf.set_text_color(*SYSTEM_GRAY_LIGHT)
+        pdf.set_font('Arial', '', 9)
+        pdf.cell(col_widths[2], 6, row[2], 0, 0, 'L')
+        
+        pdf.set_xy(18 + col_widths[0] + col_widths[1] + col_widths[2], row_y + 2)
+        pdf.cell(col_widths[3], 6, row[3], 0, 0, 'L')
+        
+        pdf.set_font('Arial', '', 10)  # Reset font
+        pdf.set_text_color(*SYSTEM_GRAY_DARK)  # Reset color
+        pdf.ln(8)
 
-    pdf.ln(5)
+    pdf.ln(8)
 
+    # Detailed Analysis Section
     pdf.chapter_title('Detailed Analysis')
     pdf.chapter_body(report_text)
 
+    # Voice Spectrogram Page
     pdf.add_page()
     pdf.chapter_title('Voice Spectrogram')
     if os.path.exists('mel_spectrogram.png'):
-        pdf.image('mel_spectrogram.png', x=10, w=190)
+        # Center and add padding around image
+        pdf.set_xy(15, pdf.get_y())
+        pdf.image('mel_spectrogram.png', x=15, w=180)
 
     pdf.output(output_pdf)
 
