@@ -1,4 +1,4 @@
-import image from "../assets/logo.png"
+import image from './../../assets/react.svg'
 
 export default function Footer() {
   return (

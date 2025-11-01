@@ -1,4 +1,5 @@
-import { WavyBackground } from "../components/ui/wavy-background";
+import { Link } from "react-router-dom";
+import { WavyBackground } from "./ui/wavy-background";
 
 
 export default function Hero() {
@@ -14,9 +15,12 @@ export default function Hero() {
       <p className="mt-3 text-center text-sm sm:text-base text-neutral-300 max-w-md">
       Sparrow analyzes your voice and conversations to help you speak with clarity & confidence.
       </p>
-      <button className="mt-4 inline-flex items-center rounded-full bg-neutral-100 text-black px-4 py-2 text-sm font-semibold transition-colors hover:bg-white/80 hover:text-black focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30">
+      <Link 
+        to="/signup"
+        className="mt-4 inline-flex items-center rounded-full bg-neutral-100 text-black px-4 py-2 text-sm font-semibold transition-colors hover:bg-white/80 hover:text-black focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30 no-underline"
+      >
         Start free trial
-      </button>
+      </Link>
     </main>
     </WavyBackground>
     </>

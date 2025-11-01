@@ -1,5 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import axios from 'axios';
 import {
   Card,
   CardContent,
@@ -28,7 +29,6 @@ import {
   Phone,
   Users,
   Clock,
-  MoreHorizontal,
   ChevronUp,
   ChevronDown,
   User,
@@ -50,8 +50,58 @@ import {
 } from 'recharts';
 
 const DashboardPage: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, token } = useAuth();
   const navigate = useNavigate();
+  const [calls, setCalls] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch real call data from API
+  useEffect(() => {
+    const fetchCalls = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json",
+        };
+        
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/call/call-list`, {
+          headers,
+        });
+
+        setCalls(response.data);
+      } catch (err: any) {
+        setError(err.response?.data?.message || 'Failed to fetch calls');
+        console.error('Error fetching calls:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCalls();
+  }, [token]);
+
+  // Process real calls for table display (top 5 most recent)
+  const recentCalls = useMemo(() => {
+    return calls
+      .slice(0, 5)
+      .map((call, index) => ({
+        id: call.callid || call._id || index,
+        caller: `Call ${index + 1}`,
+        duration: call.duration 
+          ? `${Math.floor(call.duration / 60)}:${String(Math.floor(call.duration % 60)).padStart(2, '0')}`
+          : 'N/A',
+        sentiment: 'positive', // TODO: Get from report if available
+        date: call.time ? new Date(call.time).toLocaleDateString() : 'N/A',
+        status: 'completed',
+      }));
+  }, [calls]);
 
   // Mock data for charts and metrics
   const callData = useMemo(
@@ -73,52 +123,6 @@ const DashboardPage: React.FC = () => {
       { name: 'Week 2', positive: 72, neutral: 18, negative: 10 },
       { name: 'Week 3', positive: 68, neutral: 22, negative: 10 },
       { name: 'Week 4', positive: 75, neutral: 15, negative: 10 },
-    ],
-    []
-  );
-
-  const recentCalls = useMemo(
-    () => [
-      {
-        id: 1,
-        caller: 'John Doe',
-        duration: '15:32',
-        sentiment: 'positive',
-        date: '2024-01-15',
-        status: 'completed',
-      },
-      {
-        id: 2,
-        caller: 'Jane Smith',
-        duration: '08:45',
-        sentiment: 'neutral',
-        date: '2024-01-15',
-        status: 'completed',
-      },
-      {
-        id: 3,
-        caller: 'Mike Johnson',
-        duration: '22:18',
-        sentiment: 'positive',
-        date: '2024-01-14',
-        status: 'completed',
-      },
-      {
-        id: 4,
-        caller: 'Sarah Wilson',
-        duration: '12:05',
-        sentiment: 'negative',
-        date: '2024-01-14',
-        status: 'completed',
-      },
-      {
-        id: 5,
-        caller: 'David Brown',
-        duration: '30:42',
-        sentiment: 'positive',
-        date: '2024-01-13',
-        status: 'completed',
-      },
     ],
     []
   );
@@ -423,9 +427,9 @@ const DashboardPage: React.FC = () => {
           >
             <Card className="border-[#3F3F46] bg-[#2C2C2E]">
               <CardHeader>
-                <CardTitle>Sentiment Analysis</CardTitle>
+                <CardTitle>Cost Analysis</CardTitle>
                 <CardDescription className="text-[#A1A1AA]">
-                  Weekly sentiment breakdown
+                  Weekly cost breakdown
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -485,71 +489,53 @@ const DashboardPage: React.FC = () => {
               </Button>
             </CardHeader>
             <CardContent>
-              <div className="overflow-hidden rounded-lg">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-[#3F3F46]">
-                      <th className="text-left p-4 text-xs font-medium uppercase tracking-wide text-[#A1A1AA]">
-                        Caller
-                      </th>
-                      <th className="text-left p-4 text-xs font-medium uppercase tracking-wide text-[#A1A1AA]">
-                        Duration
-                      </th>
-                      <th className="text-left p-4 text-xs font-medium uppercase tracking-wide text-[#A1A1AA]">
-                        Sentiment
-                      </th>
-                      <th className="text-left p-4 text-xs font-medium uppercase tracking-wide text-[#A1A1AA]">
-                        Date
-                      </th>
-                      <th className="text-right p-4 text-xs font-medium uppercase tracking-wide text-[#A1A1AA]">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recentCalls.map((call) => (
-                      <tr
-                        key={call.id}
-                        className="border-b border-[#3F3F46] hover:bg-white/5 transition-colors"
-                      >
-                        <td className="p-4 font-medium">{call.caller}</td>
-                        <td className="p-4 text-[#A1A1AA]">{call.duration}</td>
-                        <td className="p-4">
-                          <Badge
-                            variant={
-                              call.sentiment === 'positive'
-                                ? 'default'
-                                : call.sentiment === 'neutral'
-                                  ? 'secondary'
-                                  : 'destructive'
-                            }
-                            className={`${
-                              call.sentiment === 'positive'
-                                ? 'bg-[#22C55E]/20 text-[#22C55E] border-[#22C55E]/30'
-                                : call.sentiment === 'neutral'
-                                  ? 'bg-[#FBBF24]/20 text-[#FBBF24] border-[#FBBF24]/30'
-                                  : 'bg-[#EF4444]/20 text-[#EF4444] border-[#EF4444]/30'
-                            }`}
-                          >
-                            {call.sentiment.charAt(0).toUpperCase() +
-                              call.sentiment.slice(1)}
-                          </Badge>
-                        </td>
-                        <td className="p-4 text-[#A1A1AA]">{call.date}</td>
-                        <td className="p-4 text-right">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-[#A1A1AA] hover:text-white"
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </td>
+              {loading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="text-[#A1A1AA]">Loading calls...</div>
+                </div>
+              ) : error ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="text-red-500">{error}</div>
+                </div>
+              ) : recentCalls.length === 0 ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="text-[#A1A1AA]">No calls found</div>
+                </div>
+              ) : (
+                <div className="overflow-hidden rounded-lg">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-[#3F3F46]">
+                        <th className="text-left p-4 text-xs font-medium uppercase tracking-wide text-[#A1A1AA]">
+                          Caller
+                        </th>
+                        <th className="text-left p-4 text-xs font-medium uppercase tracking-wide text-[#A1A1AA]">
+                          Duration
+                        </th>
+                        <th className="text-left p-4 text-xs font-medium uppercase tracking-wide text-[#A1A1AA]">
+                          Cost
+                        </th>
+                        <th className="text-left p-4 text-xs font-medium uppercase tracking-wide text-[#A1A1AA]">
+                          Date
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {recentCalls.map((call) => (
+                        <tr
+                          key={call.id}
+                          className="border-b border-[#3F3F46] hover:bg-white/5 transition-colors"
+                        >
+                          <td className="p-4 font-medium">{call.caller}</td>
+                          <td className="p-4 text-[#A1A1AA]">{call.duration}</td>
+                          <td className="p-4 text-[#A1A1AA]">{call.cost ? `$${call.cost}` : 'N/A'}</td>
+                          <td className="p-4 text-[#A1A1AA]">{call.date}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </CardContent>
           </Card>
         </motion.div>

@@ -5,6 +5,10 @@ const callSchema = new mongoose.Schema({
     type: Number,
     required: false,
   },
+  userId: {
+    type: String,
+    required: false,
+  },
   callid: {
     type: String,
     required: false,
