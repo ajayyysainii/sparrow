@@ -78,13 +78,14 @@ const CallReport: React.FC<CallReportProps> = ({ callId }) => {
       <button
         onClick={openAndFetch}
         disabled={loading}
-        className={`px-3 py-1.5 rounded-lg text-xs font-semibold border-0 cursor-pointer transition-all duration-200 ease-out ${
-          exists
-            ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
-            : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100'
+        className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200 ease-out ${
+          'bg-white/5 text-[#A1A1AA] hover:bg-white/10 hover:text-white border border-white/10'
         } ${loading ? 'opacity-70 pointer-events-none' : ''}`}
       >
-        {exists ? 'See report' : 'Generate report'}
+        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <span>{exists ? 'See report' : 'Generate report'}</span>
       </button>
       {error && (
         <span className="text-xs text-red-500">{error}</span>
