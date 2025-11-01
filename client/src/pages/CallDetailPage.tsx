@@ -157,6 +157,7 @@ const Waveform: React.FC<WaveformProps> = ({ src, isPlaying, onPlay, onPause, on
           <button
             onClick={togglePlay}
             className="w-16 h-16 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/15 border border-white/20 transition-all duration-200 active:scale-95"
+            title={isPlaying ? "Pause audio" : "Play audio"}
           >
             {isPlaying ? (
               <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -174,6 +175,7 @@ const Waveform: React.FC<WaveformProps> = ({ src, isPlaying, onPlay, onPause, on
         <div 
           className="relative cursor-pointer"
           onClick={handleClick}
+          title="Click to seek"
         >
           <canvas
             ref={canvasRef}
@@ -337,6 +339,7 @@ const CallDetailPage: React.FC = () => {
           <button
             onClick={() => navigate('/dashboard/call/list')}
             className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/15 border border-white/20 transition-all duration-200 active:scale-95"
+            title="Back to call list"
           >
             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />

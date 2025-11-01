@@ -349,7 +349,7 @@ const CallList: React.FC<CallListProps> = ({ apiKey, onCallSelect }) => {
                         onClick={(e) => handleCallClick(call, e)}
                         className="text-left w-full"
                       >
-                        <div className="font-medium text-white mb-0.5 tracking-tight">
+                        <div className="font-medium text-white mb-0.5 tracking-tight hover:underline transition-all duration-200">
                           Call {call.id.slice(-8)}
                         </div>
                         <div className="text-sm text-[#A1A1AA] font-normal">
@@ -392,6 +392,7 @@ const CallList: React.FC<CallListProps> = ({ apiKey, onCallSelect }) => {
                       <button
                         onClick={(e) => handlePlayToggle(call, e)}
                         className="play-button w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/15 border border-white/20 transition-all duration-200 active:scale-95 shrink-0"
+                        title={isPlaying ? "Pause audio" : "Play audio"}
                       >
                         {isPlaying ? (
                           <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
