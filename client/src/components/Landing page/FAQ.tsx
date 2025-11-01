@@ -53,23 +53,23 @@ const AppleFAQ: React.FC = () => {
 
   const faqs: FAQ[] = [
     {
-      question: "What makes this design Apple-inspired?",
+      question: "What is Sparrow?",
       answer: "This FAQ component features clean typography with SF Pro Display font, generous spacing, smooth animations, and a dark minimalist aesthetic that reflects Apple's modern design language. The fluid transitions create an elegant, premium user experience."
     },
     {
-      question: "How does the animation work?",
+      question: "How does Sparrow help me improve?",
       answer: "The component uses CSS transitions with custom ease-out timing for buttery-smooth animations. The chevron icon rotates 180 degrees, while the answer section expands with coordinated height and opacity changes, creating that signature Apple feel."
     },
     {
-      question: "Can I customize the styling?",
+      question: "Is my voice data private?",
       answer: "Absolutely! The component is built with Tailwind CSS utility classes and uses CSS custom properties for the SF Pro Display font. You can easily adjust colors, spacing, typography, and animations to match your brand while maintaining the smooth interaction patterns."
     },
     {
-      question: "Is this component accessible?",
+      question: "Who can use Sparrow?",
       answer: "Yes, the component uses semantic HTML with proper button elements for keyboard navigation. Users can tab through questions and press Enter or Space to expand them. The high contrast dark mode design and clear hierarchy support all users, including those using assistive technologies."
     },
     {
-      question: "Does it work on mobile devices?",
+      question: "Do I need any special equipment? ",
       answer: "The component is fully responsive and touch-optimized. The generous tap targets, smooth 60fps animations, and adaptive layout work seamlessly across all devices, from the latest iPhones to desktop displays, maintaining that premium Apple experience everywhere."
     }
   ];

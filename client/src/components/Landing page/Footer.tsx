@@ -1,4 +1,4 @@
-import image from './../../assets/react.svg'
+import image from './../../assets/logo.png'
 
 export default function Footer() {
   return (
@@ -9,7 +9,7 @@ export default function Footer() {
           {/* Left Column: Branding */}
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
-              <img src={image} alt="Sparrow" className="w-7 h-7 object-contain rounded-full" />
+              <img src={image} alt="Sparrow" className="w-10 h-10 object-contain rounded-full" />
               <span className="text-[22px] font-semibold tracking-[0.2px]">Sparrow</span>
             </div>
             <p className="text-sm text-white">Design tools from the future.</p>

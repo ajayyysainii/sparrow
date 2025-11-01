@@ -99,7 +99,8 @@
 
 /* Custom checkbox styling */
 .custom-checkbox {
-  @apply w-4 h-4 rounded border-border border-2 cursor-pointer transition-colors;
+  @apply w-4 h-4 rounded border-2 cursor-pointer transition-colors;
+  border-color: hsl(var(--border));
   appearance: none;
   position: relative;
 }
