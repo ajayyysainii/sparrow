@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from flask_cors import CORS
+from flask_cors import CORS #Cross Origin Resource sharing
 
 load_dotenv()
 

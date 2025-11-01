@@ -1,5 +1,5 @@
 from flask import Flask
-from keras.layers import TFSMLayer
+import tensorflow as tf
 from groq import Groq
 import os
 import cloudinary
@@ -12,8 +12,32 @@ if not GROQ_API_KEY:
     raise ValueError("GROQ_API_KEY environment variable is required")
 client = Groq(api_key=GROQ_API_KEY)
 
+# Load the SavedModel
 model_path = "app/lsm_model3"
-model = TFSMLayer("app/lsm_model3", call_endpoint="serving_default")
+loaded_model = tf.saved_model.load(model_path)
+
+# Create a callable wrapper that mimics TFSMLayer behavior
+# This allows the model to be called directly like model(input_tensor)
+class SavedModelWrapper:
+    def __init__(self, saved_model, signature_name="serving_default"):
+        self._model = saved_model
+        self._signature_name = signature_name
+        # Try to get the signature, or use the model directly
+        if hasattr(saved_model, 'signatures') and signature_name in saved_model.signatures:
+            self._call_fn = saved_model.signatures[signature_name]
+        elif hasattr(saved_model, signature_name):
+            self._call_fn = getattr(saved_model, signature_name)
+        else:
+            # Fallback: use the model directly if it's callable
+            self._call_fn = saved_model
+    
+    def __call__(self, inputs):
+        """Make the wrapper callable like TFSMLayer"""
+        if callable(self._call_fn):
+            return self._call_fn(inputs)
+        return self._model(inputs)
+
+model = SavedModelWrapper(loaded_model, "serving_default")
 
 CLOUDINARY_CLOUD_NAME = os.getenv("CLOUDINARY_CLOUD_NAME")
 CLOUDINARY_API_KEY = os.getenv("CLOUDINARY_API_KEY")
