@@ -6,6 +6,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import DashboardPage from './pages/DashboardPage';
 import CallPage from './pages/CallPage';
 import CallListPage from './pages/CallListPage';
+import CallDetailPage from './pages/CallDetailPage';
 import LandingPage from './pages/LandingPage';
 import { AuthProvider } from './contexts/AuthContext';
 import "./App.css";
@@ -45,6 +46,13 @@ function App() {
             <Layout>
               <ProtectedRoute>
                 <CallListPage />
+              </ProtectedRoute>
+            </Layout>
+          } />
+          <Route path="/dashboard/call/:callId" element={
+            <Layout>
+              <ProtectedRoute>
+                <CallDetailPage />
               </ProtectedRoute>
             </Layout>
           } />

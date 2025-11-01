@@ -7,7 +7,6 @@ import {
   SidebarFooter, 
   SidebarHeader,
 } from '@/components/ui/sidebar';
-import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { 
@@ -15,25 +14,17 @@ import {
   Phone, 
   List, 
   LogOut, 
-  Sparkles,
-  Moon,
-  Sun
+  Sparkles
 } from 'lucide-react';
 
 const AppSidebar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout, isAuthenticated } = useAuth();
-  const [isDarkMode, setIsDarkMode] = useState(true);
 
   const handleLogout = () => {
     logout();
     navigate('/');
-  };
-
-  const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
-    // Theme toggle logic can be implemented here
   };
 
   if (!isAuthenticated) {
@@ -55,6 +46,11 @@ const AppSidebar: React.FC = () => {
       title: 'Call History',
       href: '/dashboard/call/list',
       icon: List,
+    },
+    {
+      title: 'Upgrade to Pro',
+      href: '/dashboard/upgrade',
+      icon: Sparkles,
     },
   ];
 
@@ -102,42 +98,14 @@ const AppSidebar: React.FC = () => {
             );
           })}
         </nav>
-
-        {/* Upgrade Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="mt-6 rounded-xl bg-white p-4 text-gray-900"
-        >
-          <div className="flex items-start gap-3">
-            <div className="rounded-lg bg-gray-900/20 p-2">
-              <Sparkles className="h-4 w-4 text-gray-900" />
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold text-sm mb-1 text-gray-900">Upgrade to Pro</h3>
-              <p className="text-xs text-gray-700 mb-3">
-                Get unlimited calls and advanced analytics
-              </p>
-              <Button
-                size="sm"
-                className="w-full bg-gray-900 text-white hover:bg-gray-800 font-semibold"
-              >
-                Upgrade Now
-              </Button>
-            </div>
-          </div>
-        </motion.div>
       </SidebarContent>
       
       <SidebarFooter className="border-t border-[#3F3F46] px-3 py-4">
-        <div className="space-y-2">        
-          <Separator className="bg-[#3F3F46]" />
-          
-          {/* User Info */}
+        {/* User Block - Profile and Logout grouped together */}
+        <div className="space-y-2">
           {user && (
             <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5 transition-colors">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-gray-900 text-xs font-semibold">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-gray-900 text-xs font-semibold shrink-0">
                 {user.name
                   .split(' ')
                   .map((n) => n[0])
@@ -156,7 +124,7 @@ const AppSidebar: React.FC = () => {
           
           <Button
             variant="ghost"
-            className="w-full justify-start gap-3 text-[#A1A1AA] hover:bg-white/5"
+            className="w-full justify-start gap-3 px-3 py-2.5 text-[#A1A1AA] hover:bg-white/5 transition-colors"
             onClick={handleLogout}
           >
             <LogOut className="h-4 w-4" />
