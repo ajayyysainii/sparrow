@@ -90,14 +90,14 @@ const AppleFAQ: React.FC = () => {
         <div className="max-w-4xl mx-auto">
 
           {/* Header Section with gradient text */}
-          <div className="text-center mb-12 md:mb-20 space-y-4 md:space-y-6">
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white 
+          <div className="text-center mb-8 sm:mb-12 md:mb-20 space-y-3 sm:space-y-4 md:space-y-6 px-4">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white 
                            tracking-tight leading-tight
                            bg-clip-text text-transparent bg-gradient-to-b from-white to-gray-500
                            animate-in fade-in slide-in-from-bottom-4 duration-700">
               Frequently Asked Questions
             </h1>
-            <div className="w-24 h-1 bg-gradient-to-r from-transparent via-white/30 to-transparent mx-auto" />
+            <div className="w-16 sm:w-24 h-1 bg-gradient-to-r from-transparent via-white/30 to-transparent mx-auto" />
           </div>
 
           {/* FAQ List with glassmorphism */}

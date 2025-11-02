@@ -12,7 +12,7 @@ const StatCard = ({ icon, number, label, index }: StatCardProps) => {
 
   return (
     <div
-      className="group relative flex flex-col items-start p-10 rounded-3xl bg-white/5 backdrop-blur-2xl text-white border border-white/10 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] hover:bg-white/10 hover:border-white/20 hover:shadow-2xl hover:shadow-purple-500/10 hover:-translate-y-2 animate-fade-in"
+      className="group relative flex flex-col items-start p-6 sm:p-8 md:p-10 rounded-2xl sm:rounded-3xl bg-white/5 backdrop-blur-2xl text-white border border-white/10 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] hover:bg-white/10 hover:border-white/20 hover:shadow-2xl hover:shadow-purple-500/10 hover:-translate-y-2 animate-fade-in"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       style={{
@@ -26,22 +26,22 @@ const StatCard = ({ icon, number, label, index }: StatCardProps) => {
       
       <div className="relative z-10 w-full">
         {/* Icon */}
-        <div className="mb-6 opacity-80 group-hover:opacity-100 transition-opacity duration-500">
-          <div className="w-12 h-12 text-white">
+        <div className="mb-4 sm:mb-6 opacity-80 group-hover:opacity-100 transition-opacity duration-500">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 text-white">
             {icon}
           </div>
         </div>
         
         {/* Number */}
-        <div className="mb-3">
-          <span className="text-6xl font-light text-white tracking-tight leading-none block">
+        <div className="mb-2 sm:mb-3">
+          <span className="text-4xl sm:text-5xl md:text-6xl font-light text-white tracking-tight leading-none block">
             {number}
           </span>
         </div>
         
         {/* Label */}
         <div>
-          <span className="text-lg text-white/70 font-medium tracking-tight">
+          <span className="text-base sm:text-lg text-white/70 font-medium tracking-tight">
             {label}
           </span>
         </div>
@@ -52,24 +52,24 @@ const StatCard = ({ icon, number, label, index }: StatCardProps) => {
 
 export default function AboutUs() {
   return (
-    <section className="relative w-full bg-black text-white px-6 py-24 overflow-hidden">
+    <section className="relative w-full bg-black text-white px-4 sm:px-6 lg:px-8 py-16 sm:py-20 md:py-24 overflow-hidden">
       {/* Subtle background gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-neutral-950 via-black to-neutral-950 opacity-50" />
       
       <div className="relative max-w-7xl mx-auto">
         {/* Main Title with Apple-style typography */}
-        <div className="text-center mb-20">
-          <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-semibold text-white mb-6 tracking-tight">
+        <div className="text-center mb-12 sm:mb-16 md:mb-20 px-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-semibold text-white mb-4 sm:mb-6 tracking-tight">
             About Us
           </h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-transparent via-white/30 to-transparent mx-auto mb-6" />
-          <p className="text-lg sm:text-xl text-white/60 font-light tracking-tight max-w-2xl mx-auto leading-relaxed">
+          <div className="w-16 sm:w-24 h-1 bg-gradient-to-r from-transparent via-white/30 to-transparent mx-auto mb-4 sm:mb-6" />
+          <p className="text-base sm:text-lg md:text-xl text-white/60 font-light tracking-tight max-w-2xl mx-auto leading-relaxed px-4">
             Lets know more about us.
           </p>
         </div>
 
         {/* Cards Section with Apple design */}
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8 px-4 sm:px-0">
           {/* Card 1 (Top-Left): Projects Completed */}
           <StatCard
             index={0}

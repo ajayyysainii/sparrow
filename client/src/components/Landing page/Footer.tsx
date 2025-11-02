@@ -2,58 +2,58 @@ import image from './../../assets/logo.png'
 
 export default function Footer() {
   return (
-    <footer className="relative w-full bg-black text-white py-12 px-6">
+    <footer className="relative w-full bg-black text-white py-8 sm:py-12 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto">
         {/* Top Section: Logo, Branding, and Navigation */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-8 sm:mb-12">
           {/* Left Column: Branding */}
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-3">
+          <div className="flex flex-col gap-3 sm:gap-4">
+            <div className="flex items-center gap-2 sm:gap-3">
               
-              <span className="text-[22px] font-semibold tracking-[0.2px]">Sparrow</span>
+              <span className="text-lg sm:text-[22px] font-semibold tracking-[0.2px]">Sparrow</span>
             </div>
-            <p className="text-sm text-white">Design tools from the future.</p>
-            <button className="w-fit px-4 py-2 rounded-lg bg-neutral-800 text-white text-sm font-medium transition-colors hover:bg-neutral-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30">
+            <p className="text-xs sm:text-sm text-white/80">Design tools from the future.</p>
+            <button className="w-fit px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-neutral-800 text-white text-xs sm:text-sm font-medium transition-colors hover:bg-neutral-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30">
               Join the future
             </button>
           </div>
 
           {/* Products Column */}
-          <div className="flex flex-col gap-3">
-            <h3 className="font-bold text-white mb-1">Products</h3>
-            <ul className="flex flex-col gap-2">
-              <li><a href="#" className="text-white text-sm hover:text-neutral-300 transition-colors cursor-pointer">Genius</a></li>
-              <li><a href="#" className="text-white text-sm hover:text-neutral-300 transition-colors cursor-pointer">Magician</a></li>
-              <li><a href="#" className="text-white text-sm hover:text-neutral-300 transition-colors cursor-pointer">Automator</a></li>
-              <li><a href="#" className="text-white text-sm hover:text-neutral-300 transition-colors cursor-pointer">UI-AI</a></li>
+          <div className="flex flex-col gap-2 sm:gap-3">
+            <h3 className="font-bold text-white mb-1 text-sm sm:text-base">Products</h3>
+            <ul className="flex flex-col gap-1.5 sm:gap-2">
+              <li><a href="#" className="text-white/80 text-xs sm:text-sm hover:text-neutral-300 transition-colors cursor-pointer">Genius</a></li>
+              <li><a href="#" className="text-white/80 text-xs sm:text-sm hover:text-neutral-300 transition-colors cursor-pointer">Magician</a></li>
+              <li><a href="#" className="text-white/80 text-xs sm:text-sm hover:text-neutral-300 transition-colors cursor-pointer">Automator</a></li>
+              <li><a href="#" className="text-white/80 text-xs sm:text-sm hover:text-neutral-300 transition-colors cursor-pointer">UI-AI</a></li>
             </ul>
           </div>
 
           {/* Company Column */}
-          <div className="flex flex-col gap-3">
-            <h3 className="font-bold text-white mb-1">Company</h3>
-            <ul className="flex flex-col gap-2">
-              <li><a href="#" className="text-white text-sm hover:text-neutral-300 transition-colors cursor-pointer">About</a></li>
-              <li><a href="#" className="text-white text-sm hover:text-neutral-300 transition-colors cursor-pointer">Careers</a></li>
-              <li><a href="#" className="text-white text-sm hover:text-neutral-300 transition-colors cursor-pointer">Blog</a></li>
-              <li><a href="#" className="text-white text-sm hover:text-neutral-300 transition-colors cursor-pointer">Contact</a></li>
+          <div className="flex flex-col gap-2 sm:gap-3">
+            <h3 className="font-bold text-white mb-1 text-sm sm:text-base">Company</h3>
+            <ul className="flex flex-col gap-1.5 sm:gap-2">
+              <li><a href="#" className="text-white/80 text-xs sm:text-sm hover:text-neutral-300 transition-colors cursor-pointer">About</a></li>
+              <li><a href="#" className="text-white/80 text-xs sm:text-sm hover:text-neutral-300 transition-colors cursor-pointer">Careers</a></li>
+              <li><a href="#" className="text-white/80 text-xs sm:text-sm hover:text-neutral-300 transition-colors cursor-pointer">Blog</a></li>
+              <li><a href="#" className="text-white/80 text-xs sm:text-sm hover:text-neutral-300 transition-colors cursor-pointer">Contact</a></li>
             </ul>
           </div>
 
           {/* Legal Column */}
-          <div className="flex flex-col gap-3">
-            <h3 className="font-bold text-white mb-1">Legal</h3>
-            <ul className="flex flex-col gap-2">
-              <li><a href="#" className="text-white text-sm hover:text-neutral-300 transition-colors cursor-pointer">Privacy</a></li>
-              <li><a href="#" className="text-white text-sm hover:text-neutral-300 transition-colors cursor-pointer">Terms</a></li>
+          <div className="flex flex-col gap-2 sm:gap-3">
+            <h3 className="font-bold text-white mb-1 text-sm sm:text-base">Legal</h3>
+            <ul className="flex flex-col gap-1.5 sm:gap-2">
+              <li><a href="#" className="text-white/80 text-xs sm:text-sm hover:text-neutral-300 transition-colors cursor-pointer">Privacy</a></li>
+              <li><a href="#" className="text-white/80 text-xs sm:text-sm hover:text-neutral-300 transition-colors cursor-pointer">Terms</a></li>
             </ul>
           </div>
         </div>
 
         {/* Bottom Row: Copyright and Social Icons */}
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-8 border-t border-neutral-800">
-          <p className="text-sm text-white">©2025 Sparrow Technologies, Inc.</p>
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 sm:pt-8 border-t border-neutral-800">
+          <p className="text-xs sm:text-sm text-white/80 text-center sm:text-left">©2025 Sparrow Technologies, Inc.</p>
+          <div className="flex items-center gap-3 sm:gap-4">
             {/* Twitter */}
             <a href="#" className="text-white hover:text-neutral-300 transition-colors cursor-pointer" aria-label="Twitter">
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">

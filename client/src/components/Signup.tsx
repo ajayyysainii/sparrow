@@ -92,27 +92,27 @@ const Signup: React.FC = () => {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
-            className="absolute top-8 left-8 z-20"
+            className="absolute top-4 left-4 sm:top-6 sm:left-6 md:top-8 md:left-8 z-20"
           >
-            <h1 className="text-2xl font-semibold text-white tracking-tight">
+            <h1 className="text-lg sm:text-xl md:text-2xl font-semibold text-white tracking-tight">
               Sparrow
             </h1>
           </motion.div>
 
           {/* Main content */}
-          <div className="relative h-full flex items-center justify-center p-6 md:p-12">
+          <div className="relative h-full flex items-center justify-center p-4 sm:p-6 md:p-8 lg:p-12">
             <motion.div
               variants={containerVariants}
               initial="hidden"
               animate="visible"
-              className="w-full max-w-md mx-auto"
+              className="w-full max-w-md mx-auto px-2 sm:px-0"
             >
               {/* Glass morphism container */}
-              <div className="relative rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl shadow-black/20 p-8 md:p-10">
+              <div className="relative rounded-2xl sm:rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl shadow-black/20 p-6 sm:p-8 md:p-10">
                 {/* Title */}
                 <motion.h1
                   variants={itemVariants}
-                  className="text-5xl md:text-6xl font-light text-white mb-4 tracking-tight leading-none"
+                  className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light text-white mb-3 sm:mb-4 tracking-tight leading-none"
                 >
                   <span className="font-light text-white tracking-[-0.02em]">
                     Create your account
@@ -122,7 +122,7 @@ const Signup: React.FC = () => {
                 {/* Description */}
                 <motion.p
                   variants={itemVariants}
-                  className="text-lg text-white/60 mb-10 font-light"
+                  className="text-base sm:text-lg text-white/60 mb-6 sm:mb-8 md:mb-10 font-light"
                 >
                   Join us and start your journey today
                 </motion.p>
@@ -130,12 +130,12 @@ const Signup: React.FC = () => {
                 {/* Form */}
                 <motion.form
                   variants={itemVariants}
-                  className="space-y-6"
+                  className="space-y-4 sm:space-y-5 md:space-y-6"
                   onSubmit={handleSubmit}
                 >
             {/* Name Input */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-white/80 px-1">
+            <div className="space-y-1.5 sm:space-y-2">
+              <label className="text-xs sm:text-sm font-medium text-white/80 px-1">
                 Full Name
               </label>
               <GlassInputWrapper>
@@ -143,7 +143,7 @@ const Signup: React.FC = () => {
                   name="name"
                   type="text"
                   placeholder="John Doe"
-                  className="w-full bg-transparent text-white placeholder:text-white/30 text-base px-5 py-4 rounded-2xl focus:outline-none font-light"
+                  className="w-full bg-transparent text-white placeholder:text-white/30 text-sm sm:text-base px-4 sm:px-5 py-3 sm:py-4 rounded-xl sm:rounded-2xl focus:outline-none font-light"
                   whileFocus={{ scale: 1.01 }}
                   transition={{ type: "spring", stiffness: 400, damping: 25 }}
                   required
@@ -152,8 +152,8 @@ const Signup: React.FC = () => {
             </div>
 
             {/* Email Input */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-white/80 px-1">
+            <div className="space-y-1.5 sm:space-y-2">
+              <label className="text-xs sm:text-sm font-medium text-white/80 px-1">
                 Email
               </label>
               <GlassInputWrapper>
@@ -161,7 +161,7 @@ const Signup: React.FC = () => {
                   name="email"
                   type="email"
                   placeholder="name@example.com"
-                  className="w-full bg-transparent text-white placeholder:text-white/30 text-base px-5 py-4 rounded-2xl focus:outline-none font-light"
+                  className="w-full bg-transparent text-white placeholder:text-white/30 text-sm sm:text-base px-4 sm:px-5 py-3 sm:py-4 rounded-xl sm:rounded-2xl focus:outline-none font-light"
                   whileFocus={{ scale: 1.01 }}
                   transition={{ type: "spring", stiffness: 400, damping: 25 }}
                   required
@@ -170,8 +170,8 @@ const Signup: React.FC = () => {
             </div>
 
             {/* Password Input */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-white/80 px-1">
+            <div className="space-y-1.5 sm:space-y-2">
+              <label className="text-xs sm:text-sm font-medium text-white/80 px-1">
                 Password
               </label>
               <GlassInputWrapper>
@@ -180,7 +180,7 @@ const Signup: React.FC = () => {
                     name="password"
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Create a password (min 6 characters)"
-                    className="w-full bg-transparent text-white placeholder:text-white/30 text-base px-5 py-4 pr-12 rounded-2xl focus:outline-none font-light"
+                    className="w-full bg-transparent text-white placeholder:text-white/30 text-sm sm:text-base px-4 sm:px-5 py-3 sm:py-4 pr-10 sm:pr-12 rounded-xl sm:rounded-2xl focus:outline-none font-light"
                     whileFocus={{ scale: 1.01 }}
                     transition={{ type: "spring", stiffness: 400, damping: 25 }}
                     minLength={6}
@@ -189,14 +189,14 @@ const Signup: React.FC = () => {
                   <motion.button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-4 flex items-center"
+                    className="absolute inset-y-0 right-3 sm:right-4 flex items-center"
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
                   >
                     {showPassword ? (
-                      <EyeOff className="w-5 h-5 text-white/40 hover:text-white/80 transition-colors" />
+                      <EyeOff className="w-4 h-4 sm:w-5 sm:h-5 text-white/40 hover:text-white/80 transition-colors" />
                     ) : (
-                      <Eye className="w-5 h-5 text-white/40 hover:text-white/80 transition-colors" />
+                      <Eye className="w-4 h-4 sm:w-5 sm:h-5 text-white/40 hover:text-white/80 transition-colors" />
                     )}
                   </motion.button>
                 </div>
@@ -207,7 +207,7 @@ const Signup: React.FC = () => {
             <motion.button
               type="submit"
               disabled={loading}
-              className="w-full rounded-2xl bg-white text-black py-4 text-base font-medium hover:bg-white/90 transition-all duration-300 shadow-lg shadow-white/10 relative overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full rounded-xl sm:rounded-2xl bg-white text-black py-3 sm:py-4 text-sm sm:text-base font-medium hover:bg-white/90 transition-all duration-300 shadow-lg shadow-white/10 relative overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
               whileHover={loading ? {} : { scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
@@ -226,7 +226,7 @@ const Signup: React.FC = () => {
                 {/* Login Link */}
                 <motion.p
                   variants={itemVariants}
-                  className="text-center text-sm text-white/50 mt-8 font-light"
+                  className="text-center text-xs sm:text-sm text-white/50 mt-6 sm:mt-8 font-light px-2"
                 >
                   Already have an account?{' '}
                   <motion.a
