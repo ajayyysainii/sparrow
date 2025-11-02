@@ -238,25 +238,25 @@ const DashboardPage: React.FC = () => {
       <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="sticky top-0 z-50 border-b border-[#3F3F46] bg-[#2C2C2E]/95 backdrop-blur-sm"
+        className="sticky top-0 z-50 border-b border-[#27272A] bg-[#27272A]/95 backdrop-blur-sm"
       >
         <div className="flex h-16 items-center justify-between px-6">
           {/* Search and Filters */}
           <div className="flex items-center gap-4 flex-1 max-w-2xl">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#A1A1AA]" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#AAAAAA]" />
               <Input
                 placeholder="Search calls, users, reports..."
-                className="pl-10 bg-[#1C1C1E] border-[#3F3F46] text-white placeholder:text-[#A1A1AA] focus:border-white focus:ring-white"
+                className="pl-10 bg-[#1C1C1E] border-[#27272A] text-[#E0E0E0] placeholder:text-[#AAAAAA] focus:border-white focus:ring-white"
               />
-              <kbd className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:inline-flex h-6 items-center gap-1 rounded border border-[#3F3F46] bg-[#2C2C2E] px-2 font-mono text-[10px] text-[#A1A1AA]">
+              <kbd className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:inline-flex h-6 items-center gap-1 rounded border border-[#27272A] bg-[#27272A] px-2 font-mono text-[10px] text-[#AAAAAA]">
                 ⌘K
               </kbd>
             </div>
             <Button
               variant="ghost"
               size="icon"
-              className="text-[#A1A1AA] hover:text-white hover:bg-white/5"
+              className="text-[#AAAAAA] hover:text-white hover:bg-white/5"
               title="Filter by date"
             >
               <Calendar className="h-5 w-5" />
@@ -264,7 +264,7 @@ const DashboardPage: React.FC = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="text-[#A1A1AA] hover:text-white hover:bg-white/5"
+              className="text-[#AAAAAA] hover:text-white hover:bg-white/5"
               title="Filter options"
             >
               <Filter className="h-5 w-5" />
@@ -276,11 +276,11 @@ const DashboardPage: React.FC = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="relative text-[#A1A1AA] hover:text-white hover:bg-white/5"
+              className="relative text-[#AAAAAA] hover:text-white hover:bg-white/5"
               title="Notifications"
             >
               <Bell className="h-5 w-5" />
-              <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-[#EF4444]"></span>
+                  <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-[#F56565]"></span>
             </Button>
 
             <Button className="bg-white hover:bg-white/90 text-gray-900">
@@ -299,7 +299,7 @@ const DashboardPage: React.FC = () => {
           transition={{ delay: 0.1 }}
         >
           <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
-          <p className="text-[#A1A1AA]">
+          <p className="text-[#AAAAAA]">
             Welcome back! Here's what's happening with your calls today.
           </p>
         </motion.div>
@@ -317,24 +317,24 @@ const DashboardPage: React.FC = () => {
                 whileHover={{ scale: 1.02 }}
                 className="group"
               >
-                <Card className="border-[#3F3F46] bg-[#2C2C2E] hover:border-white/50 hover:shadow-lg hover:shadow-white/10 transition-all duration-200 cursor-pointer">
+                <Card className="border-[#27272A] bg-[#27272A] hover:border-white/50 hover:shadow-lg hover:shadow-white/10 transition-all duration-200 cursor-pointer">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-[#A1A1AA] uppercase tracking-wide">
+                    <CardTitle className="text-sm font-medium text-[#AAAAAA] uppercase tracking-wide">
                       {metric.title}
                     </CardTitle>
                     <Icon className={`h-4 w-4 ${metric.color}`} />
                   </CardHeader>
                   <CardContent>
                     <div className="flex items-baseline gap-2">
-                      <CardTitle className="text-3xl font-bold">
+                      <CardTitle className="text-3xl font-bold text-white">
                         {metric.value}
                       </CardTitle>
                       {metric.change && (
                         <div
                           className={`flex items-center gap-1 text-sm font-medium ${
                             metric.trend === 'up'
-                              ? 'text-[#22C55E]'
-                              : 'text-[#EF4444]'
+                              ? 'text-[#48BB78]'
+                              : 'text-[#F56565]'
                           }`}
                         >
                           {metric.trend === 'up' ? (
@@ -362,10 +362,10 @@ const DashboardPage: React.FC = () => {
             transition={{ delay: 0.4 }}
             whileHover={{ scale: 1.01 }}
           >
-            <Card className="border-[#3F3F46] bg-[#2C2C2E] hover:border-white/50 hover:shadow-lg hover:shadow-white/10 transition-all duration-200">
+            <Card className="border-[#27272A] bg-[#27272A] hover:border-white/50 hover:shadow-lg hover:shadow-white/10 transition-all duration-200">
               <CardHeader>
                 <CardTitle>Call Volume</CardTitle>
-                <CardDescription className="text-[#A1A1AA]">
+                <CardDescription className="text-[#AAAAAA]">
                   Calls and duration over the past week
                 </CardDescription>
               </CardHeader>
@@ -395,19 +395,19 @@ const DashboardPage: React.FC = () => {
                     <CartesianGrid
                       strokeDasharray="3 3"
                       stroke="#3F3F46"
-                      opacity={0.5}
+                      opacity={0.8}
                     />
                     <XAxis
                       dataKey="name"
-                      stroke="#A1A1AA"
+                      stroke="#AAAAAA"
                       style={{ fontSize: '12px' }}
                     />
-                    <YAxis stroke="#A1A1AA" style={{ fontSize: '12px' }} />
+                    <YAxis stroke="#AAAAAA" style={{ fontSize: '12px' }} />
                     <Tooltip
                       contentStyle={{
-                        backgroundColor: '#2C2C2E',
-                        border: '1px solid #3F3F46',
-                        borderRadius: '4px',
+                        backgroundColor: '#27272A',
+                        border: '1px solid #27272A',
+                        borderRadius: '8px',
                         color: 'white',
                         padding: '6px 10px',
                         fontSize: '12px',
@@ -418,7 +418,7 @@ const DashboardPage: React.FC = () => {
                         fontSize: '12px',
                       }}
                       labelStyle={{
-                        color: '#A1A1AA',
+                        color: '#AAAAAA',
                         fontSize: '11px',
                         marginBottom: '4px',
                       }}
@@ -443,10 +443,10 @@ const DashboardPage: React.FC = () => {
             transition={{ delay: 0.5 }}
             whileHover={{ scale: 1.01 }}
           >
-            <Card className="border-[#3F3F46] bg-[#2C2C2E] hover:border-white/50 hover:shadow-lg hover:shadow-white/10 transition-all duration-200">
+            <Card className="border-[#27272A] bg-[#27272A] hover:border-white/50 hover:shadow-lg hover:shadow-white/10 transition-all duration-200">
               <CardHeader>
                 <CardTitle>Cost Analysis</CardTitle>
-                <CardDescription className="text-[#A1A1AA]">
+                <CardDescription className="text-[#AAAAAA]">
                   Weekly cost breakdown
                 </CardDescription>
               </CardHeader>
@@ -456,19 +456,19 @@ const DashboardPage: React.FC = () => {
                     <CartesianGrid
                       strokeDasharray="3 3"
                       stroke="#3F3F46"
-                      opacity={0.5}
+                      opacity={0.8}
                     />
                     <XAxis
                       dataKey="name"
-                      stroke="#A1A1AA"
+                      stroke="#AAAAAA"
                       style={{ fontSize: '12px' }}
                     />
-                    <YAxis stroke="#A1A1AA" style={{ fontSize: '12px' }} />
+                    <YAxis stroke="#AAAAAA" style={{ fontSize: '12px' }} />
                     <Tooltip
                       contentStyle={{
-                        backgroundColor: '#2C2C2E',
-                        border: '1px solid #3F3F46',
-                        borderRadius: '4px',
+                        backgroundColor: '#27272A',
+                        border: '1px solid #27272A',
+                        borderRadius: '8px',
                         color: 'white',
                         padding: '6px 10px',
                         fontSize: '12px',
@@ -479,15 +479,15 @@ const DashboardPage: React.FC = () => {
                         fontSize: '12px',
                       }}
                       labelStyle={{
-                        color: '#A1A1AA',
+                        color: '#AAAAAA',
                         fontSize: '11px',
                         marginBottom: '4px',
                       }}
                     />
                     <Legend />
-                    <Bar dataKey="positive" fill="#22C55E" radius={[8, 8, 0, 0]} />
+                    <Bar dataKey="positive" fill="#2D9D7A" radius={[8, 8, 0, 0]} />
                     <Bar dataKey="neutral" fill="#FBBF24" radius={[8, 8, 0, 0]} />
-                    <Bar dataKey="negative" fill="#EF4444" radius={[8, 8, 0, 0]} />
+                    <Bar dataKey="negative" fill="#F56565" radius={[8, 8, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -501,27 +501,27 @@ const DashboardPage: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
         >
-          <Card className="border-[#3F3F46] bg-[#2C2C2E] hover:border-white/50 hover:shadow-lg hover:shadow-white/10 transition-all duration-200">
-            <CardHeader className="flex flex-row items-center justify-between">
+          <div className="space-y-4">
+            <div className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle>Recent Calls</CardTitle>
-                <CardDescription className="text-[#A1A1AA]">
+                <h2 className="text-xl font-semibold text-white">Recent Calls</h2>
+                <p className="text-sm text-[#AAAAAA] mt-1">
                   Latest 5 calls from your history
-                </CardDescription>
+                </p>
               </div>
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-[#A1A1AA] hover:text-white"
+                className="text-[#AAAAAA] hover:text-white"
                 onClick={() => navigate('/dashboard/call/list')}
               >
                 View All
               </Button>
-            </CardHeader>
-            <CardContent>
+            </div>
+            <div>
               {loading ? (
                 <div className="flex items-center justify-center py-12">
-                  <div className="text-[#A1A1AA]">Loading calls...</div>
+                  <div className="text-[#AAAAAA]">Loading calls...</div>
                 </div>
               ) : error ? (
                 <div className="flex items-center justify-center py-12">
@@ -529,23 +529,23 @@ const DashboardPage: React.FC = () => {
                 </div>
               ) : recentCalls.length === 0 ? (
                 <div className="flex items-center justify-center py-12">
-                  <div className="text-[#A1A1AA]">No calls found</div>
+                  <div className="text-[#AAAAAA]">No calls found</div>
                 </div>
               ) : (
                 <div className="overflow-hidden rounded-lg">
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-[#3F3F46]">
-                        <th className="text-left p-4 text-xs font-medium uppercase tracking-wide text-[#A1A1AA]">
+                        <th className="text-left p-4 text-xs font-medium uppercase tracking-wide text-[#AAAAAA]">
                           Caller
                         </th>
-                        <th className="text-left p-4 text-xs font-medium uppercase tracking-wide text-[#A1A1AA]">
+                        <th className="text-left p-4 text-xs font-medium uppercase tracking-wide text-[#AAAAAA]">
                           Duration
                         </th>
-                        <th className="text-left p-4 text-xs font-medium uppercase tracking-wide text-[#A1A1AA]">
+                        <th className="text-left p-4 text-xs font-medium uppercase tracking-wide text-[#AAAAAA]">
                           Cost
                         </th>
-                        <th className="text-left p-4 text-xs font-medium uppercase tracking-wide text-[#A1A1AA]">
+                        <th className="text-left p-4 text-xs font-medium uppercase tracking-wide text-[#AAAAAA]">
                           Date
                         </th>
                       </tr>
@@ -554,20 +554,20 @@ const DashboardPage: React.FC = () => {
                       {recentCalls.map((call) => (
                         <tr
                           key={call.id}
-                          className="border-b border-[#3F3F46] hover:bg-white/5 transition-colors"
+                          className="border-b border-[#27272A] hover:bg-white/5 transition-colors"
                         >
-                          <td className="p-4 font-medium">{call.caller}</td>
-                          <td className="p-4 text-[#A1A1AA]">{call.duration}</td>
-                          <td className="p-4 text-[#A1A1AA]">${call.cost.toFixed(2)}</td>
-                          <td className="p-4 text-[#A1A1AA]">{call.date}</td>
+                          <td className="p-4 font-medium text-[#E0E0E0]">{call.caller}</td>
+                          <td className="p-4 text-[#AAAAAA]">{call.duration}</td>
+                          <td className="p-4 text-[#AAAAAA]">${call.cost.toFixed(2)}</td>
+                          <td className="p-4 text-[#AAAAAA]">{call.date}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </motion.div>
       </div>
     </div>

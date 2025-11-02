@@ -112,16 +112,11 @@ const AppSidebar: React.FC = () => {
       href: '/health',
       icon: Heart,
     },
-    {
-      title: 'Upgrade to Pro',
-      href: '/dashboard/upgrade',
-      icon: Sparkles,
-    },
   ];
 
   return (
-    <Sidebar className="border-r border-[#3F3F46] bg-[#2C2C2E]">
-      <SidebarHeader className="border-b border-[#3F3F46] flex items-center justify-center">
+    <Sidebar className="border-r border-[#27272A] bg-[#27272A]">
+      <SidebarHeader className="border-b border-[#27272A] flex items-center justify-center">
         <Link 
           to="/dashboard" 
           className="flex items-center gap-3 text-xl font-bold text-white no-underline hover:opacity-80 transition-opacity"
@@ -134,7 +129,9 @@ const AppSidebar: React.FC = () => {
         <nav className="space-y-1">
           {navItems.map((item, index) => {
             const Icon = item.icon;
-            const isActive = location.pathname === item.href;
+            // Handle exact match for routes like /health
+            const isActive = location.pathname === item.href || 
+                            (item.href === '/health' && location.pathname.startsWith('/health'));
             
             return (
               <motion.div
@@ -151,8 +148,8 @@ const AppSidebar: React.FC = () => {
                     variant="ghost"
                     className={`w-full justify-start gap-3 px-3 py-2.5 font-medium transition-all duration-200 ${
                       isActive
-                        ? 'bg-white text-gray-900 shadow-lg shadow-white/20'
-                        : 'text-[#A1A1AA] hover:bg-white/5'
+                        ? 'bg-white text-[#1C1C1E] shadow-lg shadow-white/20 [&_svg]:text-[#1C1C1E] focus:bg-white focus:text-[#1C1C1E] focus:[&_svg]:text-[#1C1C1E] active:bg-white active:text-[#1C1C1E] active:[&_svg]:text-[#1C1C1E]'
+                        : 'text-[#AAAAAA] hover:bg-white hover:text-[#1C1C1E] hover:[&_svg]:text-[#1C1C1E] focus:bg-white focus:text-[#1C1C1E] focus:[&_svg]:text-[#1C1C1E] active:bg-white active:text-[#1C1C1E] active:[&_svg]:text-[#1C1C1E]'
                     }`}
                   >
                     <Icon className="h-5 w-5" />
@@ -174,8 +171,8 @@ const AppSidebar: React.FC = () => {
               onClick={() => setBreathingExpanded(!breathingExpanded)}
               className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 font-medium transition-all duration-200 rounded-lg ${
                 isBreathingActive
-                  ? 'bg-white text-gray-900 shadow-lg shadow-white/20'
-                  : 'text-[#A1A1AA] hover:bg-white/5'
+                  ? 'bg-white text-[#1C1C1E] shadow-lg shadow-white/20 [&_svg]:text-[#1C1C1E] focus:bg-white focus:text-[#1C1C1E] focus:[&_svg]:text-[#1C1C1E] active:bg-white active:text-[#1C1C1E] active:[&_svg]:text-[#1C1C1E]'
+                  : 'text-[#AAAAAA] hover:bg-white hover:text-[#1C1C1E] hover:[&_svg]:text-[#1C1C1E] focus:bg-white focus:text-[#1C1C1E] focus:[&_svg]:text-[#1C1C1E] active:bg-white active:text-[#1C1C1E] active:[&_svg]:text-[#1C1C1E]'
               }`}
             >
               <div className="flex items-center gap-3">
@@ -211,8 +208,8 @@ const AppSidebar: React.FC = () => {
                           variant="ghost"
                           className={`w-full justify-start gap-2 px-3 py-2 text-sm font-medium transition-all duration-200 ${
                             isActive
-                              ? 'bg-white/20 text-white'
-                              : 'text-[#A1A1AA] hover:bg-white/5'
+                              ? 'bg-white text-[#1C1C1E] shadow-lg shadow-white/20 [&_svg]:text-[#1C1C1E] focus:bg-white focus:text-[#1C1C1E] focus:[&_svg]:text-[#1C1C1E] active:bg-white active:text-[#1C1C1E] active:[&_svg]:text-[#1C1C1E]'
+                              : 'text-[#AAAAAA] hover:bg-white hover:text-[#1C1C1E] hover:[&_svg]:text-[#1C1C1E] focus:bg-white focus:text-[#1C1C1E] focus:[&_svg]:text-[#1C1C1E] active:bg-white active:text-[#1C1C1E] active:[&_svg]:text-[#1C1C1E]'
                           }`}
                         >
                           <span>{route.title}</span>
@@ -236,8 +233,8 @@ const AppSidebar: React.FC = () => {
               onClick={() => setPitchExpanded(!pitchExpanded)}
               className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 font-medium transition-all duration-200 rounded-lg ${
                 isPitchActive
-                  ? 'bg-white text-gray-900 shadow-lg shadow-white/20'
-                  : 'text-[#A1A1AA] hover:bg-white/5'
+                  ? 'bg-white text-[#1C1C1E] shadow-lg shadow-white/20 [&_svg]:text-[#1C1C1E] focus:bg-white focus:text-[#1C1C1E] focus:[&_svg]:text-[#1C1C1E] active:bg-white active:text-[#1C1C1E] active:[&_svg]:text-[#1C1C1E]'
+                  : 'text-[#AAAAAA] hover:bg-white hover:text-[#1C1C1E] hover:[&_svg]:text-[#1C1C1E] focus:bg-white focus:text-[#1C1C1E] focus:[&_svg]:text-[#1C1C1E] active:bg-white active:text-[#1C1C1E] active:[&_svg]:text-[#1C1C1E]'
               }`}
             >
               <div className="flex items-center gap-3">
@@ -273,8 +270,8 @@ const AppSidebar: React.FC = () => {
                           variant="ghost"
                           className={`w-full justify-start gap-2 px-3 py-2 text-sm font-medium transition-all duration-200 ${
                             isActive
-                              ? 'bg-white/20 text-white'
-                              : 'text-[#A1A1AA] hover:bg-white/5'
+                              ? 'bg-white text-[#1C1C1E] shadow-lg shadow-white/20 [&_svg]:text-[#1C1C1E] focus:bg-white focus:text-[#1C1C1E] focus:[&_svg]:text-[#1C1C1E] active:bg-white active:text-[#1C1C1E] active:[&_svg]:text-[#1C1C1E]'
+                              : 'text-[#AAAAAA] hover:bg-white hover:text-[#1C1C1E] hover:[&_svg]:text-[#1C1C1E] focus:bg-white focus:text-[#1C1C1E] focus:[&_svg]:text-[#1C1C1E] active:bg-white active:text-[#1C1C1E] active:[&_svg]:text-[#1C1C1E]'
                           }`}
                         >
                           <span>{route.title}</span>
@@ -298,8 +295,8 @@ const AppSidebar: React.FC = () => {
               onClick={() => setArticulationExpanded(!articulationExpanded)}
               className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 font-medium transition-all duration-200 rounded-lg ${
                 isArticulationActive
-                  ? 'bg-white text-gray-900 shadow-lg shadow-white/20'
-                  : 'text-[#A1A1AA] hover:bg-white/5'
+                  ? 'bg-white text-[#1C1C1E] shadow-lg shadow-white/20 [&_svg]:text-[#1C1C1E] focus:bg-white focus:text-[#1C1C1E] focus:[&_svg]:text-[#1C1C1E] active:bg-white active:text-[#1C1C1E] active:[&_svg]:text-[#1C1C1E]'
+                  : 'text-[#AAAAAA] hover:bg-white hover:text-[#1C1C1E] hover:[&_svg]:text-[#1C1C1E] focus:bg-white focus:text-[#1C1C1E] focus:[&_svg]:text-[#1C1C1E] active:bg-white active:text-[#1C1C1E] active:[&_svg]:text-[#1C1C1E]'
               }`}
             >
               <div className="flex items-center gap-3">
@@ -335,8 +332,8 @@ const AppSidebar: React.FC = () => {
                           variant="ghost"
                           className={`w-full justify-start gap-2 px-3 py-2 text-sm font-medium transition-all duration-200 ${
                             isActive
-                              ? 'bg-white/20 text-white'
-                              : 'text-[#A1A1AA] hover:bg-white/5'
+                              ? 'bg-white text-[#1C1C1E] shadow-lg shadow-white/20 [&_svg]:text-[#1C1C1E] focus:bg-white focus:text-[#1C1C1E] focus:[&_svg]:text-[#1C1C1E] active:bg-white active:text-[#1C1C1E] active:[&_svg]:text-[#1C1C1E]'
+                              : 'text-[#AAAAAA] hover:bg-white hover:text-[#1C1C1E] hover:[&_svg]:text-[#1C1C1E] focus:bg-white focus:text-[#1C1C1E] focus:[&_svg]:text-[#1C1C1E] active:bg-white active:text-[#1C1C1E] active:[&_svg]:text-[#1C1C1E]'
                           }`}
                         >
                           <span>{route.title}</span>
@@ -352,7 +349,27 @@ const AppSidebar: React.FC = () => {
       
       </SidebarContent>
       
-      <SidebarFooter className="border-t border-[#3F3F46] px-3 py-4">
+      <SidebarFooter className="border-t border-[#27272A] px-3 py-4">
+        {/* Horizontal line separator */}
+        <hr className="border-0 border-t border-[#3F3F46] mb-4" />
+        
+        {/* Upgrade to Pro - At the very bottom, just above user profile */}
+        <div className="mb-3">
+          <Link to="/dashboard/upgrade" className="block">
+            <Button
+              variant="ghost"
+              className={`w-full justify-start gap-3 px-3 py-2.5 font-medium transition-all duration-200 ${
+                location.pathname === '/dashboard/upgrade'
+                  ? 'bg-white text-[#1C1C1E] shadow-lg shadow-white/20 [&_svg]:text-[#1C1C1E] focus:bg-white focus:text-[#1C1C1E] focus:[&_svg]:text-[#1C1C1E] active:bg-white active:text-[#1C1C1E] active:[&_svg]:text-[#1C1C1E]'
+                  : 'text-[#AAAAAA] hover:bg-white hover:text-[#1C1C1E] hover:[&_svg]:text-[#1C1C1E] focus:bg-white focus:text-[#1C1C1E] focus:[&_svg]:text-[#1C1C1E] active:bg-white active:text-[#1C1C1E] active:[&_svg]:text-[#1C1C1E]'
+              }`}
+            >
+              <Sparkles className="h-5 w-5" />
+              <span>Upgrade to Pro</span>
+            </Button>
+          </Link>
+        </div>
+
         {/* User Block - Profile and Logout grouped together */}
         <div className="space-y-2">
           {user && (
@@ -369,14 +386,14 @@ const AppSidebar: React.FC = () => {
                 <p className="text-sm font-medium text-white truncate">
                   {user.name}
                 </p>
-                <p className="text-xs text-[#A1A1AA] truncate">{user.email}</p>
+                <p className="text-xs text-[#AAAAAA] truncate">{user.email}</p>
               </div>
             </div>
           )}
           
           <Button
             variant="ghost"
-            className="w-full justify-start gap-3 px-3 py-2.5 text-[#A1A1AA] hover:bg-white/5 transition-colors"
+            className="w-full justify-start gap-3 px-3 py-2.5 text-[#AAAAAA] hover:bg-white/5 transition-colors"
             onClick={handleLogout}
           >
             <LogOut className="h-4 w-4" />

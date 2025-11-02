@@ -13,7 +13,7 @@ const BreathingExercisesPage: React.FC = () => {
           transition={{ delay: 0.1 }}
         >
           <h1 className="text-3xl font-bold mb-2">Breathing Exercises</h1>
-          <p className="text-[#A1A1AA]">
+          <p className="text-[#AAAAAA]">
             Practice mindfulness and improve your well-being with guided breathing exercises.
           </p>
         </motion.div>

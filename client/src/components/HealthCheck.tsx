@@ -147,66 +147,101 @@ const HealthCheck = () => {
   };
 
   return (
-    <div className="font-inter bg-white min-h-screen relative">
+    <div className="font-inter bg-[#1C1C1E] min-h-screen relative">
       <div className="relative z-10">
         <main className="pt-24 pb-16 min-h-screen">
           <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {report && (
               <div className="mb-8 flex gap-4">
-                <button onClick={openCloudinaryReport} className="px-4 py-2 bg-pink-500 text-white rounded-full">
+                <button onClick={openCloudinaryReport} className="px-4 py-2 bg-white text-gray-900 rounded-lg">
                   View Full Report
                 </button>
-                <button onClick={() => handleDownloadPDF(report.pdfUrl)} className="px-4 py-2 bg-pink-500 text-white rounded-full">
+                <button onClick={() => handleDownloadPDF(report.pdfUrl)} className="px-4 py-2 bg-white text-gray-900 rounded-lg">
                   Download PDF
                 </button>
               </div>
             )}
-            <div className="text-center space-y-4">
-              <h1 className="text-5xl sm:text-6xl font-bold text-pink-500">Voice Health Check</h1>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <div className="text-center space-y-6">
+              <h1 className="text-5xl sm:text-6xl font-bold text-white">Voice Health Check</h1>
+              <p className="text-lg text-[#AAAAAA] max-w-2xl mx-auto">
                 Upload your audio file in WAV format for diagnosis. Maximum length: 5 seconds.
               </p>
-              <div className="mt-8 bg-pink-100/50 p-8 rounded-lg border-2 border-dashed border-pink-500 flex flex-col items-center">
-                <label htmlFor="file-upload" className="cursor-pointer bg-pink-500 text-white py-4 px-8 rounded-lg">
-                  Choose File
+              
+              {/* Hero Icon */}
+              <div className="mt-12 flex justify-center">
+                <div className="relative w-32 h-32 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-white/5 rounded-[2rem] backdrop-blur-xl"></div>
+                  <div className="relative w-full h-full flex items-center justify-center">
+                    <svg className="w-16 h-16 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              {/* Upload Button */}
+              <div className="mt-8 flex flex-col items-center gap-4">
+                <label htmlFor="file-upload" className="cursor-pointer">
+                  <button className="bg-white text-gray-900 border-0 rounded-lg px-8 py-3 text-base font-semibold cursor-pointer inline-flex items-center gap-2 transition-all duration-200 shadow-lg shadow-white/30 hover:shadow-xl hover:shadow-white/40 hover:bg-white/90">
+                    Upload .WAV File
+                  </button>
                 </label>
                 <input id="file-upload" type="file" accept=".wav" onChange={handleFileChange} className="sr-only" />
-                <span className="mt-4 text-gray-600 text-center">{file ? file.name : "No file chosen"}</span>
+                <span className="text-[#AAAAAA] text-center text-sm">{file ? file.name : "No file chosen"}</span>
               </div>
-              <button onClick={handleDiagnose} className="mt-8 rounded-full px-8 py-3 text-lg bg-pink-500 text-white">
+
+              {/* Start Diagnosis Button */}
+              <button 
+                onClick={handleDiagnose} 
+                disabled={!file || isDiagnosing}
+                className="mt-8 !bg-white !text-gray-900 border-0 rounded-lg px-8 py-4 text-lg font-semibold cursor-pointer inline-flex items-center gap-3 transition-all duration-200 shadow-lg shadow-white/30 hover:shadow-xl hover:shadow-white/40 hover:bg-white/90 disabled:opacity-50 disabled:cursor-not-allowed disabled:!bg-white disabled:!text-gray-900"
+              >
                 {isDiagnosing ? "Diagnosing..." : "Start Diagnosis"}
-                <ArrowRight className="ml-2 inline" size={18} />
+                {!isDiagnosing && <ArrowRight className="w-5 h-5" />}
               </button>
             </div>
             {loadingReports ? (
-              <p className="text-center text-gray-500 mt-8">Loading past reports...</p>
+              <p className="text-center text-[#AAAAAA] mt-8">Loading past reports...</p>
             ) : (
               <div className="space-y-8 mt-8">
                 {report && (
-                  <div className="bg-white p-8 rounded-xl border shadow-lg">
-                    <h2 className="text-2xl font-semibold text-pink-500 mb-4">Diagnosis Result</h2>
-                    <div className="text-xl font-medium text-gray-800 mb-4">
-                      Predicted Condition: <span className="text-pink-500">{report.prediction}</span>
+                  <div className="bg-[#27272A] p-8 rounded-lg border border-[#27272A]">
+                    <h2 className="text-2xl font-semibold text-white mb-4">Diagnosis Result</h2>
+                    <div className="text-xl font-medium text-[#E0E0E0] mb-4">
+                      Predicted Condition: <span className="text-white">{report.prediction}</span>
                     </div>
-                    <div className="text-gray-600 mb-4">Analysis Date: {formatDateTime(report.analysisDate)}</div>
+                    <div className="text-[#AAAAAA] mb-4">Analysis Date: {formatDateTime(report.analysisDate)}</div>
                   </div>
                 )}
-                <div className="bg-white p-8 rounded-xl border shadow-lg">
-                  <h2 className="text-2xl font-semibold text-pink-500 mb-4">Past Reports</h2>
-                  <ul>
+                {/* Past Reports Card */}
+                <div className="bg-[#27272A] rounded-lg border border-[#27272A] p-6">
+                  <h2 className="text-xl font-semibold text-white mb-4">Past Reports</h2>
+                  <div className="space-y-4">
                     {pastReports.length === 0 ? (
-                      <p className="text-gray-600">No past reports found.</p>
+                      <p className="text-[#AAAAAA] text-sm">No past reports found.</p>
                     ) : (
-                      pastReports.map((rep: any) => (
-                        <li key={rep._id} className="text-gray-700 mb-2">
-                          <strong>{formatDateTime(rep.analysisDate)}:</strong> {rep.prediction}{" "}
-                          <button onClick={() => handleDownloadPDF(rep.pdfUrl)} className="text-blue-600 ml-2 underline">
-                            Download
-                          </button>
-                        </li>
-                      ))
+                      <div className="space-y-3">
+                        {pastReports.map((rep: any) => (
+                          <div key={rep._id} className="border-b border-[#27272A] pb-3 last:border-0">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <p className="text-sm font-medium text-[#E0E0E0] mb-1">
+                                  {formatDateTime(rep.analysisDate)}
+                                </p>
+                                <p className="text-sm text-[#AAAAAA]">{rep.prediction}</p>
+                              </div>
+                              <button 
+                                onClick={() => handleDownloadPDF(rep.pdfUrl)} 
+                                className="text-sm text-white hover:underline ml-4"
+                              >
+                                Download
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     )}
-                  </ul>
+                  </div>
                 </div>
               </div>
             )}

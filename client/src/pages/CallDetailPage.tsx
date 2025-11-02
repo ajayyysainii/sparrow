@@ -149,7 +149,7 @@ const Waveform: React.FC<WaveformProps> = ({ src, isPlaying, onPlay, onPause, on
   };
 
   return (
-    <div className="w-full bg-white/5 rounded-2xl border border-white/10 p-6 backdrop-blur-xl">
+    <div className="w-full bg-white/5 rounded-lg border border-white/10 p-6 backdrop-blur-xl">
       <audio ref={audioRef} src={src} preload="metadata" />
       <div className="space-y-4">
         {/* Play/Pause Button */}
@@ -192,7 +192,7 @@ const Waveform: React.FC<WaveformProps> = ({ src, isPlaying, onPlay, onPause, on
         </div>
 
         {/* Time Display */}
-        <div className="flex items-center justify-between text-sm text-white/60 font-medium">
+        <div className="flex items-center justify-between text-sm text-[#A0AEC0] font-medium">
           <span>{formatTime((progress / 100) * duration)}</span>
           <span>{formatTime(duration)}</span>
         </div>
@@ -286,12 +286,12 @@ const CallDetailPage: React.FC = () => {
     switch (status.toLowerCase()) {
       case 'completed':
       case 'ended':
-        return '#34c759';
+        return '#48BB78';
       case 'in-progress':
       case 'ringing':
-        return '#007aff';
+        return '#6366F1';
       case 'failed':
-        return '#ff3b30';
+        return '#F56565';
       case 'queued':
         return '#ff9500';
       default:
@@ -379,30 +379,30 @@ const CallDetailPage: React.FC = () => {
       )}
 
       {/* Call Details */}
-      <div className="bg-white/5 rounded-2xl border border-white/10 p-6 backdrop-blur-xl">
+      <div className="bg-white/5 rounded-lg border border-white/10 p-6 backdrop-blur-xl">
         <h2 className="text-lg font-semibold text-white mb-4 tracking-tight">Call Details</h2>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <p className="text-xs text-white/50 mb-1">Duration</p>
-            <p className="text-base text-white font-medium">{formatDuration(call)}</p>
+            <p className="text-xs text-[#A0AEC0] mb-1">Duration</p>
+            <p className="text-base text-[#E2E8F0] font-medium">{formatDuration(call)}</p>
           </div>
           {call.cost !== undefined && (
             <div>
-              <p className="text-xs text-white/50 mb-1">Cost</p>
-              <p className="text-base text-white font-medium">${call.cost.toFixed(4)}</p>
+              <p className="text-xs text-[#A0AEC0] mb-1">Cost</p>
+              <p className="text-base text-[#E2E8F0] font-medium">${call.cost.toFixed(4)}</p>
             </div>
           )}
           {call.endedReason && (
             <div className="col-span-2">
-              <p className="text-xs text-white/50 mb-1">Ended Reason</p>
-              <p className="text-base text-white font-medium">{call.endedReason.replace(/-/g, ' ')}</p>
+              <p className="text-xs text-[#A0AEC0] mb-1">Ended Reason</p>
+              <p className="text-base text-[#E2E8F0] font-medium">{call.endedReason.replace(/-/g, ' ')}</p>
             </div>
           )}
         </div>
       </div>
 
       {/* Report Section */}
-      <div className="bg-white/5 rounded-2xl border border-white/10 p-6 backdrop-blur-xl">
+      <div className="bg-white/5 rounded-lg border border-white/10 p-6 backdrop-blur-xl">
         <h2 className="text-lg font-semibold text-white mb-6 tracking-tight">Call Report</h2>
         <CallReportVisualization callId={call.id} />
       </div>

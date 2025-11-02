@@ -122,8 +122,8 @@ const InlineAudioPlayer: React.FC<InlineAudioPlayerProps> = ({ src, isPlaying, o
         />
       </div>
       <div className="flex items-center justify-between mt-1.5">
-        <span className="text-xs text-[#A1A1AA]">{formatTime((progress / 100) * duration)}</span>
-        <span className="text-xs text-[#A1A1AA]">{formatTime(duration)}</span>
+        <span className="text-xs text-[#AAAAAA]">{formatTime((progress / 100) * duration)}</span>
+        <span className="text-xs text-[#AAAAAA]">{formatTime(duration)}</span>
       </div>
     </div>
   );
@@ -208,12 +208,12 @@ const CallList: React.FC<CallListProps> = ({ apiKey, onCallSelect }) => {
     switch (status.toLowerCase()) {
       case 'completed':
       case 'ended':
-        return '#34c759';
+        return '#48BB78';
       case 'in-progress':
       case 'ringing':
-        return '#007aff';
+        return '#6366F1';
       case 'failed':
-        return '#ff3b30';
+        return '#F56565';
       case 'queued':
         return '#ff9500';
       default:
@@ -278,7 +278,7 @@ const CallList: React.FC<CallListProps> = ({ apiKey, onCallSelect }) => {
         </p>
         <button
           onClick={fetchCalls}
-          className="px-6 py-3 bg-white text-black rounded-full text-sm font-medium tracking-tight transition-all duration-200 hover:bg-white/90 active:scale-95"
+          className="px-6 py-3 bg-white text-gray-900 rounded-lg text-sm font-medium tracking-tight transition-all duration-200 hover:bg-white/90 active:scale-95"
         >
           Try Again
         </button>
@@ -294,7 +294,7 @@ const CallList: React.FC<CallListProps> = ({ apiKey, onCallSelect }) => {
           <h2 className="text-2xl font-semibold text-white mb-1 tracking-tight">
             Call History
           </h2>
-          <p className="text-sm text-[#A1A1AA] font-normal">
+          <p className="text-sm text-[#AAAAAA] font-normal">
             {calls.length} {calls.length === 1 ? 'call' : 'calls'}
           </p>
         </div>
@@ -312,14 +312,14 @@ const CallList: React.FC<CallListProps> = ({ apiKey, onCallSelect }) => {
       {/* Calls List - Compact Rows */}
       <div className="space-y-2">
         {calls.length === 0 ? (
-          <div className="flex flex-col items-center justify-center min-h-[400px] p-8 bg-white/5 rounded-xl border border-white/10">
+          <div className="flex flex-col items-center justify-center min-h-[400px] p-8 bg-white/5 rounded-lg border border-white/10">
             <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-6">
               <span className="text-3xl">📞</span>
             </div>
             <h3 className="text-lg font-semibold text-white mb-2 tracking-tight">
               No Calls Yet
             </h3>
-            <p className="text-sm text-[#A1A1AA] text-center max-w-sm leading-relaxed">
+                    <p className="text-sm text-[#AAAAAA] text-center max-w-sm leading-relaxed">
               Start a call to see it appear here
             </p>
           </div>
@@ -349,10 +349,10 @@ const CallList: React.FC<CallListProps> = ({ apiKey, onCallSelect }) => {
                         onClick={(e) => handleCallClick(call, e)}
                         className="text-left w-full"
                       >
-                        <div className="font-medium text-white mb-0.5 tracking-tight hover:underline transition-all duration-200">
+                        <div className="font-medium text-[#E0E0E0] mb-0.5 tracking-tight hover:underline transition-all duration-200">
                           Call {call.id.slice(-8)}
                         </div>
-                        <div className="text-sm text-[#A1A1AA] font-normal">
+                        <div className="text-sm text-[#AAAAAA] font-normal">
                           {formatDateCompact(call.startedAt)}
                         </div>
                       </button>
@@ -377,7 +377,7 @@ const CallList: React.FC<CallListProps> = ({ apiKey, onCallSelect }) => {
                   <div className="flex items-center gap-3 shrink-0">
                     {/* Status Badge */}
                     <span 
-                      className="inline-block px-2.5 py-1 rounded-md text-xs font-medium capitalize"
+                      className="inline-block px-2.5 py-1 rounded-lg text-xs font-medium capitalize"
                       style={{ 
                         backgroundColor: `${getStatusColor(call.status)}20`,
                         color: getStatusColor(call.status),
@@ -433,3 +433,4 @@ const CallList: React.FC<CallListProps> = ({ apiKey, onCallSelect }) => {
 };
 
 export default CallList;
+
