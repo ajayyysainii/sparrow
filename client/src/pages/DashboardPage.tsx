@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,21 +19,19 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import {
   Search,
   Bell,
-  Settings,
   Calendar,
   Filter,
   TrendingUp,
-  Phone,
-  Users,
-  Clock,
   ChevronUp,
   ChevronDown,
   User,
   LogOut,
+  Flame,
+  Star,
+  DollarSign,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -50,11 +49,13 @@ import {
 } from 'recharts';
 
 const DashboardPage: React.FC = () => {
-  const { user, logout, token } = useAuth();
+  const { token } = useAuth();
   const navigate = useNavigate();
   const [calls, setCalls] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [stats, setStats] = useState<{ streak: number; totalPoints: number } | null>(null);
+  const [totalCost, setTotalCost] = useState<number>(0);
 
   // Fetch real call data from API
   useEffect(() => {
@@ -87,6 +88,67 @@ const DashboardPage: React.FC = () => {
     fetchCalls();
   }, [token]);
 
+  // Fetch stats data from API
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json",
+        };
+        
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/stats`, {
+          headers,
+        });
+
+        setStats({
+          streak: response.data.streak || 0,
+          totalPoints: response.data.totalPoints || 0,
+        });
+      } catch (err: any) {
+        console.error('Error fetching stats:', err);
+        // Set default values on error
+        setStats({ streak: 0, totalPoints: 0 });
+      }
+    };
+
+    if (token) {
+      fetchStats();
+    }
+  }, [token]);
+
+  // Fetch total cost from API
+  useEffect(() => {
+    const fetchTotalCost = async () => {
+      try {
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json",
+        };
+        
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/call/total-cost`, {
+          headers,
+        });
+
+        setTotalCost(parseFloat(response.data.totalCost) || 0);
+      } catch (err: any) {
+        console.error('Error fetching total cost:', err);
+        // Set default value on error
+        setTotalCost(0);
+      }
+    };
+
+    if (token) {
+      fetchTotalCost();
+    }
+  }, [token]);
+
   // Process real calls for table display (top 5 most recent)
   const recentCalls = useMemo(() => {
     return calls
@@ -100,6 +162,7 @@ const DashboardPage: React.FC = () => {
         sentiment: 'positive', // TODO: Get from report if available
         date: call.time ? new Date(call.time).toLocaleDateString() : 'N/A',
         status: 'completed',
+        cost: call.cost || undefined,
       }));
   }, [calls]);
 
@@ -130,54 +193,44 @@ const DashboardPage: React.FC = () => {
   const metrics = useMemo(
     () => [
       {
-        title: 'Total Calls',
-        value: '1,247',
-        change: '+12.5%',
-        trend: 'up',
-        icon: Phone,
-        color: 'text-white',
+        title: 'Streak',
+        value: stats?.streak?.toString() || '0',
+        change: '+0',
+        trend: 'up' as const,
+        icon: Flame,
+        color: 'text-orange-400',
       },
       {
-        title: 'Active Users',
-        value: '892',
-        change: '+8.2%',
-        trend: 'up',
-        icon: Users,
+        title: 'Points',
+        value: stats?.totalPoints?.toString() || '0',
+        change: '+0',
+        trend: 'up' as const,
+        icon: Star,
+        color: 'text-yellow-400',
+      },
+      {
+        title: 'Total Cost',
+        value: `$${totalCost.toFixed(2)}`,
+        change: '',
+        trend: 'up' as const,
+        icon: DollarSign,
         color: 'text-green-400',
-      },
-      {
-        title: 'Avg Call Duration',
-        value: '18:32',
-        change: '-3.1%',
-        trend: 'down',
-        icon: Clock,
-        color: 'text-blue-400',
+        decreaseIsGood: false, // Increase is good
       },
       {
         title: 'Resolution Rate',
         value: '94%',
         change: '+5.3%',
-        trend: 'up',
+        trend: 'up' as const,
         icon: TrendingUp,
         color: 'text-white',
+        decreaseIsGood: false, // Increase is good
       },
     ],
-    []
+    [stats, totalCost]
   );
 
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
 
-  const getUserInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
 
   return (
     <div className="min-h-screen bg-[#1C1C1E] text-white">
@@ -204,6 +257,7 @@ const DashboardPage: React.FC = () => {
               variant="ghost"
               size="icon"
               className="text-[#A1A1AA] hover:text-white hover:bg-white/5"
+              title="Filter by date"
             >
               <Calendar className="h-5 w-5" />
             </Button>
@@ -211,6 +265,7 @@ const DashboardPage: React.FC = () => {
               variant="ghost"
               size="icon"
               className="text-[#A1A1AA] hover:text-white hover:bg-white/5"
+              title="Filter options"
             >
               <Filter className="h-5 w-5" />
             </Button>
@@ -222,6 +277,7 @@ const DashboardPage: React.FC = () => {
               variant="ghost"
               size="icon"
               className="relative text-[#A1A1AA] hover:text-white hover:bg-white/5"
+              title="Notifications"
             >
               <Bell className="h-5 w-5" />
               <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-[#EF4444]"></span>
@@ -230,58 +286,6 @@ const DashboardPage: React.FC = () => {
             <Button className="bg-white hover:bg-white/90 text-gray-900">
               Share Report
             </Button>
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="h-10 w-10 rounded-full p-0"
-                >
-                  <Avatar className="h-10 w-10 border-2 border-[#3F3F46]">
-                    <AvatarImage src="" />
-                    <AvatarFallback className="bg-white text-gray-900">
-                      {user ? getUserInitials(user.name) : 'U'}
-                    </AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="w-56 bg-[#2C2C2E] border-[#3F3F46]"
-              >
-                <div className="flex items-center gap-3 px-2 py-3">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src="" />
-                    <AvatarFallback className="bg-white text-gray-900">
-                      {user ? getUserInitials(user.name) : 'U'}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium text-white">
-                      {user?.name || 'User'}
-                    </span>
-                    <span className="text-xs text-[#A1A1AA]">{user?.email}</span>
-                  </div>
-                </div>
-                <DropdownMenuSeparator className="bg-[#3F3F46]" />
-                <DropdownMenuItem className="text-[#A1A1AA] hover:text-white hover:bg-white/5 cursor-pointer">
-                  <User className="mr-2 h-4 w-4" />
-                  Profile
-                </DropdownMenuItem>
-                <DropdownMenuItem className="text-[#A1A1AA] hover:text-white hover:bg-white/5 cursor-pointer">
-                  <Settings className="mr-2 h-4 w-4" />
-                  Settings
-                </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-[#3F3F46]" />
-                <DropdownMenuItem
-                  className="text-[#EF4444] hover:text-[#EF4444] hover:bg-[#EF4444]/10 cursor-pointer"
-                  onClick={handleLogout}
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
           </div>
         </div>
       </motion.div>
@@ -313,7 +317,7 @@ const DashboardPage: React.FC = () => {
                 whileHover={{ scale: 1.02 }}
                 className="group"
               >
-                <Card className="border-[#3F3F46] bg-[#2C2C2E] hover:border-white/50 transition-all duration-200 cursor-pointer">
+                <Card className="border-[#3F3F46] bg-[#2C2C2E] hover:border-white/50 hover:shadow-lg hover:shadow-white/10 transition-all duration-200 cursor-pointer">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium text-[#A1A1AA] uppercase tracking-wide">
                       {metric.title}
@@ -325,20 +329,22 @@ const DashboardPage: React.FC = () => {
                       <CardTitle className="text-3xl font-bold">
                         {metric.value}
                       </CardTitle>
-                      <div
-                        className={`flex items-center gap-1 text-sm font-medium ${
-                          metric.trend === 'up'
-                            ? 'text-[#22C55E]'
-                            : 'text-[#EF4444]'
-                        }`}
-                      >
-                        {metric.trend === 'up' ? (
-                          <ChevronUp className="h-4 w-4" />
-                        ) : (
-                          <ChevronDown className="h-4 w-4" />
-                        )}
-                        {metric.change}
-                      </div>
+                      {metric.change && (
+                        <div
+                          className={`flex items-center gap-1 text-sm font-medium ${
+                            metric.trend === 'up'
+                              ? 'text-[#22C55E]'
+                              : 'text-[#EF4444]'
+                          }`}
+                        >
+                          {metric.trend === 'up' ? (
+                            <ChevronUp className="h-4 w-4" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4" />
+                          )}
+                          {metric.change}
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -356,7 +362,7 @@ const DashboardPage: React.FC = () => {
             transition={{ delay: 0.4 }}
             whileHover={{ scale: 1.01 }}
           >
-            <Card className="border-[#3F3F46] bg-[#2C2C2E]">
+            <Card className="border-[#3F3F46] bg-[#2C2C2E] hover:border-white/50 hover:shadow-lg hover:shadow-white/10 transition-all duration-200">
               <CardHeader>
                 <CardTitle>Call Volume</CardTitle>
                 <CardDescription className="text-[#A1A1AA]">
@@ -401,8 +407,20 @@ const DashboardPage: React.FC = () => {
                       contentStyle={{
                         backgroundColor: '#2C2C2E',
                         border: '1px solid #3F3F46',
-                        borderRadius: '8px',
+                        borderRadius: '4px',
                         color: 'white',
+                        padding: '6px 10px',
+                        fontSize: '12px',
+                      }}
+                      itemStyle={{
+                        color: 'white',
+                        padding: '2px 0',
+                        fontSize: '12px',
+                      }}
+                      labelStyle={{
+                        color: '#A1A1AA',
+                        fontSize: '11px',
+                        marginBottom: '4px',
                       }}
                     />
                     <Area
@@ -425,7 +443,7 @@ const DashboardPage: React.FC = () => {
             transition={{ delay: 0.5 }}
             whileHover={{ scale: 1.01 }}
           >
-            <Card className="border-[#3F3F46] bg-[#2C2C2E]">
+            <Card className="border-[#3F3F46] bg-[#2C2C2E] hover:border-white/50 hover:shadow-lg hover:shadow-white/10 transition-all duration-200">
               <CardHeader>
                 <CardTitle>Cost Analysis</CardTitle>
                 <CardDescription className="text-[#A1A1AA]">
@@ -450,8 +468,20 @@ const DashboardPage: React.FC = () => {
                       contentStyle={{
                         backgroundColor: '#2C2C2E',
                         border: '1px solid #3F3F46',
-                        borderRadius: '8px',
+                        borderRadius: '4px',
                         color: 'white',
+                        padding: '6px 10px',
+                        fontSize: '12px',
+                      }}
+                      itemStyle={{
+                        color: 'white',
+                        padding: '2px 0',
+                        fontSize: '12px',
+                      }}
+                      labelStyle={{
+                        color: '#A1A1AA',
+                        fontSize: '11px',
+                        marginBottom: '4px',
                       }}
                     />
                     <Legend />
@@ -471,7 +501,7 @@ const DashboardPage: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
         >
-          <Card className="border-[#3F3F46] bg-[#2C2C2E]">
+          <Card className="border-[#3F3F46] bg-[#2C2C2E] hover:border-white/50 hover:shadow-lg hover:shadow-white/10 transition-all duration-200">
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
                 <CardTitle>Recent Calls</CardTitle>
@@ -528,7 +558,7 @@ const DashboardPage: React.FC = () => {
                         >
                           <td className="p-4 font-medium">{call.caller}</td>
                           <td className="p-4 text-[#A1A1AA]">{call.duration}</td>
-                          <td className="p-4 text-[#A1A1AA]">{call.cost ? `$${call.cost}` : 'N/A'}</td>
+                          <td className="p-4 text-[#A1A1AA]">${call.cost.toFixed(2)}</td>
                           <td className="p-4 text-[#A1A1AA]">{call.date}</td>
                         </tr>
                       ))}

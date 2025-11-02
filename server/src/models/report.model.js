@@ -56,7 +56,8 @@ reportSchema.pre('save', function(next) {
   next();
 });
 
-const Report = mongoose.model('Report', reportSchema);
+// Check if model already exists to avoid overwrite error
+const Report = mongoose.models.Report || mongoose.model('Report', reportSchema);
 
 export default Report;
 

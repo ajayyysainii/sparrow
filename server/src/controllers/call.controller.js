@@ -19,14 +19,160 @@ const getGroqClient = () => {
   return groq;
 };
 
+// Helper function to fetch call details from Vapi API
+const fetchCallDetailsFromVapi = async (callid) => {
+  try {
+    // Try query parameter format first (as specified by user)
+    let response = await fetch(`https://api.vapi.ai/call?id=${callid}`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${process.env.VAPI_API_KEY_PRIVATE}`,
+      },
+    });
+
+    // If query parameter doesn't work, try path parameter format
+    if (!response.ok) {
+      response = await fetch(`https://api.vapi.ai/call/${callid}`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${process.env.VAPI_API_KEY_PRIVATE}`,
+        },
+      });
+    }
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const vapiCallData = await response.json();
+    
+    // Handle different response formats
+    let callData = null;
+    if (Array.isArray(vapiCallData)) {
+      callData = vapiCallData.find(call => call.id === callid) || vapiCallData[0];
+    } else if (vapiCallData.id) {
+      callData = vapiCallData;
+    } else if (vapiCallData.calls && Array.isArray(vapiCallData.calls)) {
+      callData = vapiCallData.calls.find(call => call.id === callid) || vapiCallData.calls[0];
+    }
+
+    if (!callData) {
+      return null;
+    }
+
+    // Calculate duration if available
+    let duration = null;
+    if (callData.endedAt && callData.startedAt) {
+      duration = (new Date(callData.endedAt) - new Date(callData.startedAt)) / 1000; // seconds
+    } else if (callData.duration) {
+      duration = callData.duration;
+    }
+
+    // Extract recording URL
+    const callrecording_url =
+      callData.recordingUrl ||
+      (callData.artifact && callData.artifact.recordingUrl) ||
+      (callData.artifact && callData.artifact.recording && callData.artifact.recording.mono && callData.artifact.recording.mono.combinedUrl) ||
+      null;
+
+    // Extract cost
+    const cost =
+      callData.cost ||
+      (callData.costBreakdown && callData.costBreakdown.total) ||
+      null;
+
+    // Extract time
+    const time = callData.startedAt
+      ? new Date(callData.startedAt)
+      : new Date();
+
+    return {
+      duration,
+      callrecording_url,
+      cost,
+      time,
+      transcript: callData.transcript || callData.summary || "",
+      ...callData, // Include all other fields from Vapi
+    };
+  } catch (error) {
+    console.error("Error fetching call details from Vapi:", error.message);
+    return null;
+  }
+};
+
 export class CallController {
   getCallList = async (req, res) => {
     try {
-      const calls = await Call.find({ callrecording_url: { $ne: null } }).sort({
-        time: -1,
-      });
-      res.status(200).json(calls);
+      // Filter calls by userId
+      const query = {};
+      if (req.user && req.user.userId) {
+        query.userId = req.user.userId;
+      }
+      
+      const calls = await Call.find(query).sort({ _id: -1 });
+      
+      // Fetch details from Vapi API for each call
+      const callsWithDetails = await Promise.all(
+        calls.map(async (call) => {
+          const vapiDetails = await fetchCallDetailsFromVapi(call.callid);
+          
+          // Only return calls that have a recording URL (filter out incomplete calls)
+          if (!vapiDetails || !vapiDetails.callrecording_url) {
+            return null;
+          }
+
+          return {
+            _id: call._id,
+            callid: call.callid,
+            userId: call.userId,
+            duration: vapiDetails.duration,
+            callrecording_url: vapiDetails.callrecording_url,
+            cost: vapiDetails.cost,
+            time: vapiDetails.time,
+          };
+        })
+      );
+
+      // Filter out null values (calls without recording URLs)
+      const filteredCalls = callsWithDetails.filter(call => call !== null);
+      
+      res.status(200).json(filteredCalls);
     } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  };
+
+  // Save call with userId after client creates it
+  saveCall = async (req, res) => {
+    try {
+      const { callid } = req.body;
+      const userId = req.user?.userId;
+
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      if (!callid) {
+        return res.status(400).json({ message: "callid is required" });
+      }
+
+      // Save only callid and userId to database
+      const call = await Call.findOneAndUpdate(
+        { callid },
+        { $set: { callid, userId } },
+        { upsert: true, new: true }
+      );
+
+      res.status(201).json({
+        message: "Call saved successfully",
+        call: {
+          callid: call.callid,
+          userId: call.userId,
+          _id: call._id,
+        },
+      });
+    } catch (error) {
+      console.error("Error saving call:", error);
       res.status(500).json({ message: error.message });
     }
   };
@@ -82,33 +228,22 @@ export class CallController {
       }
 
       // If report doesn't exist, generate it using GroqAI
-      // Check if recording URL is available
-      if (!call.callrecording_url) {
+      // Fetch call details from Vapi API
+      const vapiDetails = await fetchCallDetailsFromVapi(callid);
+      
+      if (!vapiDetails || !vapiDetails.callrecording_url) {
         return res
           .status(400)
           .json({ message: "No recording URL available for this call" });
       }
 
       // Step 1: Try to get transcript from Vapi API first
-      let transcript = "";
-      try {
-        const vapiResponse = await fetch(`https://api.vapi.ai/call/${callid}`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${process.env.VAPI_API_KEY_PRIVATE}`,
-          },
-        });
-
-        const vapiData = await vapiResponse.json();
-        transcript = vapiData.transcript || vapiData.summary || "";
-      } catch (error) {
-        // Error fetching transcript from Vapi
-      }
+      let transcript = vapiDetails.transcript || "";
 
       // Step 2: If no transcript from Vapi, download and transcribe using Groq
       if (!transcript) {
         try {
-          const audioResponse = await fetch(call.callrecording_url);
+          const audioResponse = await fetch(vapiDetails.callrecording_url);
           const audioFile = await audioResponse.arrayBuffer();
 
           const formData = new FormData();
@@ -232,51 +367,38 @@ Please provide your response in the following JSON format:
       res.status(500).json({ message: error.message });
     }
   };
+
+  // Get total cost of all calls for the authenticated user
+  getTotalCost = async (req, res) => {
+    try {
+      // Filter calls by userId
+      const query = {};
+      if (req.user && req.user.userId) {
+        query.userId = req.user.userId;
+      }
+      
+      const calls = await Call.find(query).sort({ _id: -1 });
+      
+      // Fetch details from Vapi API for each call and calculate total cost
+      let totalCost = 0;
+      await Promise.all(
+        calls.map(async (call) => {
+          const vapiDetails = await fetchCallDetailsFromVapi(call.callid);
+          
+          // Only include calls that have a cost
+          if (vapiDetails && vapiDetails.cost && typeof vapiDetails.cost === 'number') {
+            totalCost += vapiDetails.cost;
+          }
+        })
+      );
+      
+      res.status(200).json({ 
+        totalCost: totalCost.toFixed(2),
+        currency: 'USD'
+      });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  };
 }
 
-// POLLING FUNCTION (STATIC METHOD)
-export async function pollAndSyncVapiCalls() {
-  try {
-    const response = await fetch("https://api.vapi.ai/call", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${process.env.VAPI_API_KEY_PRIVATE}`,
-      },
-    });
-    const body = await response.json();
-    let callArray = [];
-    if (Array.isArray(body)) {
-      callArray = body;
-    } else if (body && Array.isArray(body.calls)) {
-      callArray = body.calls;
-    } else if (body && body.id) {
-      callArray = [body];
-    }
-    for (const callInfo of callArray) {
-      let duration = null;
-      if (callInfo.endedAt && callInfo.startedAt) {
-        duration =
-          (new Date(callInfo.endedAt) - new Date(callInfo.startedAt)) / 1000; // seconds
-      } else if (callInfo.duration) {
-        duration = callInfo.duration;
-      }
-      const callrecording_url =
-        callInfo.recordingUrl ||
-        (callInfo.artifact && callInfo.artifact.recordingUrl) ||
-        null;
-      const callid = callInfo.id || null;
-      const cost =
-        callInfo.cost ||
-        (callInfo.costBreakdown && callInfo.costBreakdown.total) ||
-        null;
-      const time = callInfo.startedAt
-        ? new Date(callInfo.startedAt)
-        : new Date();
-      if (!callid) continue;
-      const callData = { callid, duration, callrecording_url, cost, time };
-      await Call.updateOne({ callid }, { $set: callData }, { upsert: true });
-    }
-  } catch (err) {
-    // Polling Vapi API failed
-  }
-}

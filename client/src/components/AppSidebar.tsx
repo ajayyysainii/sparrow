@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Sidebar, 
   SidebarContent, 
   SidebarFooter, 
   SidebarHeader,
 } from '@/components/ui/sidebar';
-import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { 
@@ -16,29 +15,81 @@ import {
   List, 
   LogOut, 
   Sparkles,
-  Moon,
-  Sun
+  Wind,
+  ChevronRight,
+  Music,
+  Mic,
+  Heart
 } from 'lucide-react';
 
 const AppSidebar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout, isAuthenticated } = useAuth();
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [breathingExpanded, setBreathingExpanded] = useState(false);
+  const [pitchExpanded, setPitchExpanded] = useState(false);
+  const [articulationExpanded, setArticulationExpanded] = useState(false);
 
   const handleLogout = () => {
     logout();
     navigate('/');
   };
 
-  const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
-    // Theme toggle logic can be implemented here
-  };
-
   if (!isAuthenticated) {
     return null;
   }
+
+  const breathingRoutes = [
+    {
+      title: 'Diaphragmatic Breathing',
+      href: '/dashboard/breathing/diaphragmatic',
+    },
+    {
+      title: 'Square Breathing',
+      href: '/dashboard/breathing/square',
+    },
+    {
+      title: 'Sustained Breath',
+      href: '/dashboard/breathing/sustained',
+    },
+  ];
+
+  const pitchRoutes = [
+    {
+      title: 'Pitch Slides',
+      href: '/dashboard/pitch/slides',
+    },
+    {
+      title: 'Scale Practice',
+      href: '/dashboard/pitch/scale',
+    },
+    {
+      title: 'Interval Jumps',
+      href: '/dashboard/pitch/intervals',
+    },
+  ];
+
+  const articulationRoutes = [
+    {
+      title: 'Tongue Twisters',
+      href: '/dashboard/articulation/tongue-twisters',
+    },
+    {
+      title: 'Lip Trills',
+      href: '/dashboard/articulation/lip-trills',
+    },
+    {
+      title: 'Diction Practice',
+      href: '/dashboard/articulation/diction',
+    },
+  ];
+
+  const isBreathingActive = location.pathname.startsWith('/dashboard/breathing');
+  const isBreathingExpanded = breathingExpanded || isBreathingActive;
+  const isPitchActive = location.pathname.startsWith('/dashboard/pitch');
+  const isPitchExpanded = pitchExpanded || isPitchActive;
+  const isArticulationActive = location.pathname.startsWith('/dashboard/articulation');
+  const isArticulationExpanded = articulationExpanded || isArticulationActive;
 
   const navItems = [
     {
@@ -55,6 +106,16 @@ const AppSidebar: React.FC = () => {
       title: 'Call History',
       href: '/dashboard/call/list',
       icon: List,
+    },
+    {
+      title: 'Voice Health Check',
+      href: '/health',
+      icon: Heart,
+    },
+    {
+      title: 'Upgrade to Pro',
+      href: '/dashboard/upgrade',
+      icon: Sparkles,
     },
   ];
 
@@ -101,43 +162,202 @@ const AppSidebar: React.FC = () => {
               </motion.div>
             );
           })}
-        </nav>
 
-        {/* Upgrade Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="mt-6 rounded-xl bg-white p-4 text-gray-900"
-        >
-          <div className="flex items-start gap-3">
-            <div className="rounded-lg bg-gray-900/20 p-2">
-              <Sparkles className="h-4 w-4 text-gray-900" />
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold text-sm mb-1 text-gray-900">Upgrade to Pro</h3>
-              <p className="text-xs text-gray-700 mb-3">
-                Get unlimited calls and advanced analytics
-              </p>
-              <Button
-                size="sm"
-                className="w-full bg-gray-900 text-white hover:bg-gray-800 font-semibold"
+          {/* Breathing Exercises Dropdown */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mt-2"
+          >
+            <button
+              onClick={() => setBreathingExpanded(!breathingExpanded)}
+              className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 font-medium transition-all duration-200 rounded-lg ${
+                isBreathingActive
+                  ? 'bg-white text-gray-900 shadow-lg shadow-white/20'
+                  : 'text-[#A1A1AA] hover:bg-white/5'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Wind className="h-5 w-5" />
+                <span className='text-nowrap'>Breathing Exercises</span>
+              </div>
+              <motion.div
+                animate={{ rotate: isBreathingExpanded ? 90 : 0 }}
+                transition={{ duration: 0.2 }}
               >
-                Upgrade Now
-              </Button>
-            </div>
-          </div>
-        </motion.div>
+                <ChevronRight className="h-4 w-4" />
+              </motion.div>
+            </button>
+
+            <AnimatePresence>
+              {isBreathingExpanded && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden ml-8 mt-1 space-y-1"
+                >
+                  {breathingRoutes.map((route) => {
+                    const isActive = location.pathname === route.href;
+                    return (
+                      <Link
+                        key={route.href}
+                        to={route.href}
+                        className="block"
+                      >
+                        <Button
+                          variant="ghost"
+                          className={`w-full justify-start gap-2 px-3 py-2 text-sm font-medium transition-all duration-200 ${
+                            isActive
+                              ? 'bg-white/20 text-white'
+                              : 'text-[#A1A1AA] hover:bg-white/5'
+                          }`}
+                        >
+                          <span>{route.title}</span>
+                        </Button>
+                      </Link>
+                    );
+                  })}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+
+          {/* Pitch Control Dropdown */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4 }}
+            className="mt-2"
+          >
+            <button
+              onClick={() => setPitchExpanded(!pitchExpanded)}
+              className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 font-medium transition-all duration-200 rounded-lg ${
+                isPitchActive
+                  ? 'bg-white text-gray-900 shadow-lg shadow-white/20'
+                  : 'text-[#A1A1AA] hover:bg-white/5'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Music className="h-5 w-5" />
+                <span className="text-nowrap">Pitch Control</span>
+              </div>
+              <motion.div
+                animate={{ rotate: isPitchExpanded ? 90 : 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </motion.div>
+            </button>
+
+            <AnimatePresence>
+              {isPitchExpanded && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden ml-8 mt-1 space-y-1"
+                >
+                  {pitchRoutes.map((route) => {
+                    const isActive = location.pathname === route.href;
+                    return (
+                      <Link
+                        key={route.href}
+                        to={route.href}
+                        className="block"
+                      >
+                        <Button
+                          variant="ghost"
+                          className={`w-full justify-start gap-2 px-3 py-2 text-sm font-medium transition-all duration-200 ${
+                            isActive
+                              ? 'bg-white/20 text-white'
+                              : 'text-[#A1A1AA] hover:bg-white/5'
+                          }`}
+                        >
+                          <span>{route.title}</span>
+                        </Button>
+                      </Link>
+                    );
+                  })}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+
+          {/* Articulation Exercises Dropdown */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5 }}
+            className="mt-2"
+          >
+            <button
+              onClick={() => setArticulationExpanded(!articulationExpanded)}
+              className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 font-medium transition-all duration-200 rounded-lg ${
+                isArticulationActive
+                  ? 'bg-white text-gray-900 shadow-lg shadow-white/20'
+                  : 'text-[#A1A1AA] hover:bg-white/5'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Mic className="h-5 w-5" />
+                <span className="text-nowrap">Articulation Exercises</span>
+              </div>
+              <motion.div
+                animate={{ rotate: isArticulationExpanded ? 90 : 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </motion.div>
+            </button>
+
+            <AnimatePresence>
+              {isArticulationExpanded && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden ml-8 mt-1 space-y-1"
+                >
+                  {articulationRoutes.map((route) => {
+                    const isActive = location.pathname === route.href;
+                    return (
+                      <Link
+                        key={route.href}
+                        to={route.href}
+                        className="block"
+                      >
+                        <Button
+                          variant="ghost"
+                          className={`w-full justify-start gap-2 px-3 py-2 text-sm font-medium transition-all duration-200 ${
+                            isActive
+                              ? 'bg-white/20 text-white'
+                              : 'text-[#A1A1AA] hover:bg-white/5'
+                          }`}
+                        >
+                          <span>{route.title}</span>
+                        </Button>
+                      </Link>
+                    );
+                  })}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        </nav>
+      
       </SidebarContent>
       
       <SidebarFooter className="border-t border-[#3F3F46] px-3 py-4">
-        <div className="space-y-2">        
-          <Separator className="bg-[#3F3F46]" />
-          
-          {/* User Info */}
+        {/* User Block - Profile and Logout grouped together */}
+        <div className="space-y-2">
           {user && (
             <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5 transition-colors">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-gray-900 text-xs font-semibold">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-gray-900 text-xs font-semibold shrink-0">
                 {user.name
                   .split(' ')
                   .map((n) => n[0])
@@ -156,7 +376,7 @@ const AppSidebar: React.FC = () => {
           
           <Button
             variant="ghost"
-            className="w-full justify-start gap-3 text-[#A1A1AA] hover:bg-white/5"
+            className="w-full justify-start gap-3 px-3 py-2.5 text-[#A1A1AA] hover:bg-white/5 transition-colors"
             onClick={handleLogout}
           >
             <LogOut className="h-4 w-4" />

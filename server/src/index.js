@@ -5,8 +5,6 @@ import 'dotenv/config'
 import connectDB from "./config/connectDB.js"
 import MODULE_ROUTE_MAPPING from "./app.js";
 import morgan from 'morgan'
-import Call from "./models/call.model.js";
-import { pollAndSyncVapiCalls } from "./controllers/call.controller.js";
 
 
 const app = express();
@@ -25,11 +23,16 @@ const startServer = async () => {
         }
 
         // Set up middleware
-        app.use(express.json())
-        app.use(express.urlencoded({ extended: true }));
+        app.use(cors({
+            origin: process.env.FRONTEND_URL || "http://localhost:5173",
+            credentials: true,
+            methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+            allowedHeaders: ['Content-Type', 'Authorization'],
+        })) 
         app.use(morgan("dev"))
-        app.use(cors()) 
-        app.use(express.text({ type: "*/*" }));
+        // Body parsers - these handle JSON and URL-encoded, but NOT multipart/form-data (multer handles that)
+        app.use(express.json({ limit: '50mb' }))
+        app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
         // Routes
         app.get("/",(req,res)=>{
@@ -39,10 +42,6 @@ const startServer = async () => {
         MODULE_ROUTE_MAPPING.forEach(({prefix,router})=>{
             app.use(prefix,router);
         })
-
-        // Start polling and server
-        setInterval(pollAndSyncVapiCalls, 60000); // Poll every 60 seconds
-        pollAndSyncVapiCalls(); // Run once immediately on server start
 
         app.listen(port, () => {
             console.log(`Server is connected to ${port}`);

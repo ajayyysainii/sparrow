@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import AudioPlayer, { RHAP_UI } from 'react-h5-audio-player';
-import 'react-h5-audio-player/lib/styles.css';
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import CallReport from './CallReport';
 import { useAuth } from '../contexts/AuthContext';
 
 interface Call {
@@ -37,11 +35,105 @@ interface CallListProps {
   onCallSelect?: (call: Call) => void;
 }
 
+// Inline Audio Player Component
+interface InlineAudioPlayerProps {
+  src: string;
+  isPlaying: boolean;
+  onEnded: () => void;
+}
+
+const InlineAudioPlayer: React.FC<InlineAudioPlayerProps> = ({ src, isPlaying, onEnded }) => {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const updateProgress = () => {
+      if (audio.duration) {
+        setProgress((audio.currentTime / audio.duration) * 100);
+      }
+    };
+
+    const handleTimeUpdate = () => updateProgress();
+    const handleLoadedMetadata = () => {
+      setDuration(audio.duration);
+    };
+    const handleEnded = () => {
+      onEnded();
+      setProgress(0);
+    };
+
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+    audio.addEventListener('ended', handleEnded);
+
+    return () => {
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      audio.removeEventListener('ended', handleEnded);
+    };
+  }, [onEnded]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (isPlaying) {
+      audio.play().catch(console.error);
+    } else {
+      audio.pause();
+    }
+  }, [isPlaying]);
+
+  const handleScrubberClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const percentage = (x / rect.width) * 100;
+    
+    if (audioRef.current && duration) {
+      audioRef.current.currentTime = (percentage / 100) * duration;
+      setProgress(percentage);
+    }
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  return (
+    <div className="mt-2">
+      <audio ref={audioRef} src={src} preload="metadata" />
+      <div 
+        className="relative h-1 bg-white/10 rounded-full cursor-pointer group"
+        onClick={handleScrubberClick}
+      >
+        <div 
+          className="absolute left-0 top-0 h-full bg-white/60 rounded-full transition-all"
+          style={{ width: `${progress}%` }}
+        />
+        <div 
+          className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+          style={{ left: `calc(${progress}% - 6px)` }}
+        />
+      </div>
+      <div className="flex items-center justify-between mt-1.5">
+        <span className="text-xs text-[#A1A1AA]">{formatTime((progress / 100) * duration)}</span>
+        <span className="text-xs text-[#A1A1AA]">{formatTime(duration)}</span>
+      </div>
+    </div>
+  );
+};
+
 const CallList: React.FC<CallListProps> = ({ apiKey, onCallSelect }) => {
+  const navigate = useNavigate();
   const [calls, setCalls] = useState<Call[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedCall, setSelectedCall] = useState<Call | null>(null);
   const [playingCallId, setPlayingCallId] = useState<string | null>(null);
   const { token } = useAuth();
 
@@ -100,7 +192,7 @@ const CallList: React.FC<CallListProps> = ({ apiKey, onCallSelect }) => {
     }
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDateCompact = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
       month: 'short',
@@ -111,26 +203,6 @@ const CallList: React.FC<CallListProps> = ({ apiKey, onCallSelect }) => {
     });
   };
 
-  const formatDuration = (call: Call) => {
-    if (call.duration) {
-      const minutes = Math.floor(call.duration / 60);
-      const remainingSeconds = call.duration % 60;
-      return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-    }
-    
-    // Calculate duration from startedAt and endedAt
-    if (call.startedAt && call.endedAt) {
-      const start = new Date(call.startedAt);
-      const end = new Date(call.endedAt);
-      const diffMs = end.getTime() - start.getTime();
-      const diffSeconds = Math.floor(diffMs / 1000);
-      const minutes = Math.floor(diffSeconds / 60);
-      const remainingSeconds = diffSeconds % 60;
-      return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-    }
-    
-    return 'N/A';
-  };
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -149,53 +221,43 @@ const CallList: React.FC<CallListProps> = ({ apiKey, onCallSelect }) => {
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'completed':
-      case 'ended':
-        return '✅';
-      case 'in-progress':
-      case 'ringing':
-        return '🔄';
-      case 'failed':
-        return '❌';
-      case 'queued':
-        return '⏳';
-      default:
-        return '📞';
-    }
-  };
-
-  const handleCallSelect = (call: Call) => {
-    setSelectedCall(call);
-    onCallSelect?.(call);
-  };
 
   const getRecordingUrl = (call: Call) => {
-    // Try different recording URLs in order of preference
     return call.recordingUrl || 
            call.stereoRecordingUrl || 
            call.artifact?.recording?.stereoUrl ||
            call.artifact?.recording?.mono?.combinedUrl;
   };
 
-  const handlePlay = (callId: string) => {
-    setPlayingCallId(callId);
+  const handlePlayToggle = (call: Call, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (playingCallId === call.id) {
+      // Pause current audio
+      setPlayingCallId(null);
+    } else {
+      // Stop any currently playing audio and start this one
+      setPlayingCallId(call.id);
+    }
   };
 
-  const handlePause = () => {
-    setPlayingCallId(null);
-  };
-
-  const handleEnded = () => {
-    setPlayingCallId(null);
+  const handleCallClick = (call: Call, e: React.MouseEvent) => {
+    // Don't navigate if clicking on interactive elements
+    if ((e.target as HTMLElement).closest('.play-button') ||
+        (e.target as HTMLElement).closest('.audio-player')) {
+      return;
+    }
+    navigate(`/dashboard/call/${call.id}`);
+    onCallSelect?.(call);
   };
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center">
-        <div className="w-10 h-10 border-3 border-gray-200 border-t-blue-500 rounded-full animate-spin mb-4"></div>
-        <p className="text-lg text-slate-500 font-medium m-0">
+      <div className="flex flex-col items-center justify-center min-h-[400px]">
+        <div className="relative">
+          <div className="w-12 h-12 border-2 border-white/10 border-t-white/40 rounded-full animate-spin"></div>
+        </div>
+        <p className="text-base text-white/60 font-medium mt-6 tracking-tight">
           Loading calls...
         </p>
       </div>
@@ -204,17 +266,19 @@ const CallList: React.FC<CallListProps> = ({ apiKey, onCallSelect }) => {
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center h-96 bg-white/80 backdrop-blur-xl rounded-3xl border border-white/50 shadow-2xl shadow-black/8 p-12">
-        <div className="text-5xl mb-4">⚠️</div>
-        <p className="text-lg text-red-500 font-semibold mb-2 m-0">
-          Error loading calls
-        </p>
-        <p className="text-sm text-slate-500 mb-6 text-center m-0">
+      <div className="flex flex-col items-center justify-center min-h-[400px] p-8">
+        <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mb-6">
+          <span className="text-2xl">⚠️</span>
+        </div>
+        <h3 className="text-xl font-semibold text-white mb-2 tracking-tight">
+          Unable to Load Calls
+        </h3>
+        <p className="text-sm text-white/50 mb-8 text-center max-w-sm leading-relaxed">
           {error}
         </p>
         <button
           onClick={fetchCalls}
-          className="bg-linear-to-br from-blue-500 to-blue-700 text-white border-0 rounded-3xl px-6 py-3 text-sm font-semibold cursor-pointer transition-all duration-200 ease-out shadow-lg shadow-blue-500/30 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/40"
+          className="px-6 py-3 bg-white text-black rounded-full text-sm font-medium tracking-tight transition-all duration-200 hover:bg-white/90 active:scale-95"
         >
           Try Again
         </button>
@@ -223,129 +287,147 @@ const CallList: React.FC<CallListProps> = ({ apiKey, onCallSelect }) => {
   }
 
   return (
-    <div className="w-full bg-white/80 backdrop-blur-xl rounded-3xl border border-white/50 shadow-2xl shadow-black/8 p-8 overflow-hidden flex flex-col">
+    <div className="w-full">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6 pb-4 border-b border-black/10">
-        <h2 className="text-3xl font-bold text-slate-900 m-0 tracking-tight">
-          Call History
-        </h2>
+      <div className="flex items-center justify-between mb-6 px-1">
+        <div>
+          <h2 className="text-2xl font-semibold text-white mb-1 tracking-tight">
+            Call History
+          </h2>
+          <p className="text-sm text-[#A1A1AA] font-normal">
+            {calls.length} {calls.length === 1 ? 'call' : 'calls'}
+          </p>
+        </div>
         <button
           onClick={fetchCalls}
-          className="bg-blue-50 text-blue-500 border-0 rounded-xl px-4 py-2 text-sm font-semibold cursor-pointer transition-all duration-200 ease-out hover:bg-blue-100"
+          className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/15 border border-white/20 transition-all duration-200 active:scale-95 shrink-0"
+          title="Refresh"
         >
-          Refresh
+          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
         </button>
       </div>
 
-      {/* Calls List */}
-      <div className="flex-1 overflow-y-auto pr-2">
+      {/* Calls List - Compact Rows */}
+      <div className="space-y-2">
         {calls.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-48 text-slate-500">
-            <div className="text-5xl mb-4">📞</div>
-            <p className="text-lg font-medium mb-2 m-0">
-              No calls yet
-            </p>
-            <p className="text-sm m-0">
-              Start a call to see it here
+          <div className="flex flex-col items-center justify-center min-h-[400px] p-8 bg-white/5 rounded-xl border border-white/10">
+            <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-6">
+              <span className="text-3xl">📞</span>
+            </div>
+            <h3 className="text-lg font-semibold text-white mb-2 tracking-tight">
+              No Calls Yet
+            </h3>
+            <p className="text-sm text-[#A1A1AA] text-center max-w-sm leading-relaxed">
+              Start a call to see it appear here
             </p>
           </div>
         ) : (
-          calls.map((call) => (
-            <div
-              key={call.id}
-              onClick={() => handleCallSelect(call)}
-              className={`rounded-2xl p-4 mb-3 cursor-pointer transition-all duration-200 ease-out ${
-                selectedCall?.id === call.id 
-                  ? 'bg-blue-50 border border-blue-300' 
-                  : playingCallId === call.id
-                  ? 'bg-green-50 border border-green-300'
-                  : 'bg-black/5 border border-transparent hover:bg-black/10'
-              }`}
-            >
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-3">
-                  <div className="text-xl">
-                    {getStatusIcon(call.status)}
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <p className="text-base font-semibold text-slate-900 m-0">
-                        Call #{call.id.slice(-8)}
-                      </p>
-                      {playingCallId === call.id && (
-                        <div className="flex items-center gap-1 text-green-600">
-                          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                          <span className="text-xs font-medium">Playing</span>
+          calls.map((call, index) => {
+            const isPlaying = playingCallId === call.id;
+            const hasRecording = !!getRecordingUrl(call);
+            
+            return (
+              <div
+                key={call.id}
+                onClick={(e) => handleCallClick(call, e)}
+                className={`group relative px-4 py-3 rounded-lg border transition-all duration-200 cursor-pointer ${
+                  isPlaying
+                    ? 'bg-white/10 border-white/20'
+                    : 'bg-white/5 hover:bg-white/10 border-white/10 hover:border-white/15'
+                }`}
+                style={{
+                  animation: `fadeIn 0.2s ease-out ${index * 0.02}s both`
+                }}
+              >
+                <div className="flex items-center justify-between">
+                  {/* Left Section: Call ID, Date, and Audio Player */}
+                  <div className="flex items-center gap-4 flex-1 min-w-0">
+                    <div className="text-left flex-1 min-w-0">
+                      <button
+                        onClick={(e) => handleCallClick(call, e)}
+                        className="text-left w-full"
+                      >
+                        <div className="font-medium text-white mb-0.5 tracking-tight hover:underline transition-all duration-200">
+                          Call {call.id.slice(-8)}
+                        </div>
+                        <div className="text-sm text-[#A1A1AA] font-normal">
+                          {formatDateCompact(call.startedAt)}
+                        </div>
+                      </button>
+                      
+                      {/* Inline Audio Player - Shows when playing */}
+                      {isPlaying && hasRecording && (
+                        <div 
+                          className="audio-player animate-fadeIn"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <InlineAudioPlayer
+                            src={getRecordingUrl(call)!}
+                            isPlaying={isPlaying}
+                            onEnded={() => setPlayingCallId(null)}
+                          />
                         </div>
                       )}
                     </div>
-                    <p className="text-sm text-slate-500 m-0">
-                      {formatDate(call.startedAt)}
-                    </p>
                   </div>
-                </div>
-                
-                <div className="flex items-center gap-3">
-                  <div 
-                    className="text-white px-2 py-1 rounded-lg text-xs font-semibold capitalize"
-                    style={{ backgroundColor: getStatusColor(call.status) }}
-                  >
-                    {call.status}
-                  </div>
-                  
-                  {getRecordingUrl(call) && (
-                    <div 
-                      className="flex items-center"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <AudioPlayer
-                        src={getRecordingUrl(call)!}
-                        onPlay={() => handlePlay(call.id)}
-                        onPause={handlePause}
-                        onEnded={handleEnded}
-                        className="w-32! h-8!"
-                        style={{
-                          '--rhap-theme-color': '#3b82f6',
-                          '--rhap-bg-color': 'transparent',
-                          '--rhap-progress-color': '#3b82f6',
-                          '--rhap-bar-color': '#e5e7eb',
-                          '--rhap-time-color': '#6b7280',
-                          '--rhap-font-family': 'inherit',
-                        } as React.CSSProperties}
-                        layout="horizontal-reverse"
-                        showJumpControls={false}
-                        showFilledProgress={true}
-                        showDownloadProgress={false}
-                        showFilledVolume={true}
-                        customProgressBarSection={[]}
-                        customControlsSection={[RHAP_UI.MAIN_CONTROLS, RHAP_UI.VOLUME_CONTROLS]}
-                        customAdditionalControls={[]}
-                      />
-                    </div>
-                  )}
 
-                  {/* Report actions */}
-                  <div onClick={(e) => e.stopPropagation()}>
-                    <CallReport callId={call.id} />
+                  {/* Right Section: Status Badge, Play Button, and Report Button */}
+                  <div className="flex items-center gap-3 shrink-0">
+                    {/* Status Badge */}
+                    <span 
+                      className="inline-block px-2.5 py-1 rounded-md text-xs font-medium capitalize"
+                      style={{ 
+                        backgroundColor: `${getStatusColor(call.status)}20`,
+                        color: getStatusColor(call.status),
+                        border: `1px solid ${getStatusColor(call.status)}40`
+                      }}
+                    >
+                      {call.status}
+                    </span>
+
+                    {/* Play/Pause Button */}
+                    {hasRecording && (
+                      <button
+                        onClick={(e) => handlePlayToggle(call, e)}
+                        className="play-button w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/15 border border-white/20 transition-all duration-200 active:scale-95 shrink-0"
+                        title={isPlaying ? "Pause audio" : "Play audio"}
+                      >
+                        {isPlaying ? (
+                          <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+                          </svg>
+                        ) : (
+                          <svg className="w-4 h-4 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z" />
+                          </svg>
+                        )}
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
-              
-              <div className="flex items-center gap-4 text-sm text-slate-500">
-                <span>Duration: {formatDuration(call)}</span>
-                {call.cost && (
-                  <span>Cost: ${call.cost.toFixed(4)}</span>
-                )}
-                {call.endedReason && (
-                  <span className="text-xs bg-slate-100 px-2 py-1 rounded">
-                    {call.endedReason.replace(/-/g, ' ')}
-                  </span>
-                )}
-              </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
+
+      <style>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(4px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out;
+        }
+      `}</style>
     </div>
   );
 };
