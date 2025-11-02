@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -7,9 +8,9 @@ interface CallReportVisualizationProps {
 }
 
 interface ReportPayload {
-  sentimentAnalysis?: 'Positive' | 'Neutral' | 'Negative';
-  confidenceLevel?: number;
-  vocabularyRichness?: number;
+  sentimentAnalysis?: 'Positive' | 'Neutral' | 'Negative' | null;
+  confidenceLevel?: number | null;
+  vocabularyRichness?: number | null;
   speakingTimeSplit?: {
     caller?: number;
     callee?: number;
@@ -23,6 +24,7 @@ interface GetReportResponse {
 }
 
 const CallReportVisualization: React.FC<CallReportVisualizationProps> = ({ callId }) => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(true);
   const [generating, setGenerating] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -92,8 +94,22 @@ const CallReportVisualization: React.FC<CallReportVisualizationProps> = ({ callI
         const reportRes = await axios.get<GetReportResponse>(`${apiBase}/call/call-report/${callId}`, { headers });
         setReport(reportRes.data?.report || null);
         setGenerating(false);
+        // Refresh user data to update credits
+        window.location.reload();
         return;
       } catch (err: any) {
+        // Check for credit/payment errors
+        if (err.response?.status === 403 || err.response?.data?.needsUpgrade) {
+          const shouldUpgrade = window.confirm(
+            err.response?.data?.message || "No credits remaining. Would you like to upgrade to Premium?"
+          );
+          if (shouldUpgrade) {
+            navigate("/dashboard/upgrade");
+          }
+          setGenerating(false);
+          return;
+        }
+        
         // If it times out or errors, report generation was triggered - we'll poll for status
         if (err.code === 'ECONNABORTED' || err.response?.status === 500) {
           console.log('Report generation initiated, polling for completion...');
@@ -119,6 +135,8 @@ const CallReportVisualization: React.FC<CallReportVisualizationProps> = ({ callI
             const res = await axios.get<GetReportResponse>(`${apiBase}/call/call-report/${callId}`, { headers });
             setReport(res.data?.report || null);
             setGenerating(false);
+            // Refresh user data to update credits
+            window.location.reload();
           } else if (pollCount >= maxPolls) {
             clearInterval(pollInterval);
             setGenerating(false);
@@ -165,13 +183,13 @@ const CallReportVisualization: React.FC<CallReportVisualizationProps> = ({ callI
   const getSentimentColor = (sentiment?: string) => {
     switch (sentiment?.toLowerCase()) {
       case 'positive':
-        return 'text-green-400';
+        return 'text-[#48BB78]';
       case 'neutral':
         return 'text-yellow-400';
       case 'negative':
-        return 'text-red-400';
+        return 'text-[#F56565]';
       default:
-        return 'text-[#A1A1AA]';
+        return 'text-[#A0AEC0]';
     }
   };
 
@@ -189,7 +207,7 @@ const CallReportVisualization: React.FC<CallReportVisualizationProps> = ({ callI
   if (error || !report) {
     return (
       <div className="flex flex-col items-center justify-center py-8">
-        <p className="text-sm text-[#A1A1AA] mb-4">
+        <p className="text-sm text-[#A0AEC0] mb-4">
           {error || 'No report available. Generate a report to see analytics.'}
         </p>
         <button
@@ -199,7 +217,7 @@ const CallReportVisualization: React.FC<CallReportVisualizationProps> = ({ callI
         >
           {generating ? (
             <>
-              <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin"></div>
+              <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin"></div>
               <span>Generating...</span>
             </>
           ) : (
@@ -220,7 +238,7 @@ const CallReportVisualization: React.FC<CallReportVisualizationProps> = ({ callI
             <div className="flex items-center gap-3 mb-2">
               <span className="text-2xl">{getSentimentIcon(report.sentimentAnalysis)}</span>
               <div>
-                <p className="text-xs text-[#A1A1AA] mb-0.5">Sentiment</p>
+                <p className="text-xs text-[#A0AEC0] mb-0.5">Sentiment</p>
                 <p className={`text-base font-medium capitalize ${getSentimentColor(report.sentimentAnalysis)}`}>
                   {report.sentimentAnalysis}
                 </p>
@@ -232,11 +250,11 @@ const CallReportVisualization: React.FC<CallReportVisualizationProps> = ({ callI
         {/* Confidence & Vocabulary */}
         <div className="space-y-4">
           {/* Confidence */}
-          {report.confidenceLevel !== undefined && (
+          {report.confidenceLevel !== undefined && report.confidenceLevel !== null && (
             <div>
               <div className="flex items-center justify-between mb-2">
-                <p className="text-xs text-[#A1A1AA]">Confidence</p>
-                <p className="text-sm font-medium text-white">{report.confidenceLevel}%</p>
+                <p className="text-xs text-[#A0AEC0]">Confidence</p>
+                <p className="text-sm font-medium text-[#E2E8F0]">{report.confidenceLevel}%</p>
               </div>
               <div className="relative h-2 bg-white/10 rounded-full overflow-hidden">
                 <div 
@@ -248,11 +266,11 @@ const CallReportVisualization: React.FC<CallReportVisualizationProps> = ({ callI
           )}
 
           {/* Vocabulary */}
-          {report.vocabularyRichness !== undefined && (
+          {report.vocabularyRichness !== undefined && report.vocabularyRichness !== null && (
             <div>
               <div className="flex items-center justify-between mb-2">
-                <p className="text-xs text-[#A1A1AA]">Vocabulary</p>
-                <p className="text-sm font-medium text-white">{report.vocabularyRichness}%</p>
+                <p className="text-xs text-[#A0AEC0]">Vocabulary</p>
+                <p className="text-sm font-medium text-[#E2E8F0]">{report.vocabularyRichness}%</p>
               </div>
               <div className="relative h-2 bg-white/10 rounded-full overflow-hidden">
                 <div 
@@ -267,7 +285,7 @@ const CallReportVisualization: React.FC<CallReportVisualizationProps> = ({ callI
         {/* Speaking Time Split */}
         {report.speakingTimeSplit && (
           <div>
-            <p className="text-xs text-[#A1A1AA] mb-2">Speaking Time Split</p>
+            <p className="text-xs text-[#A0AEC0] mb-2">Speaking Time Split</p>
             <div className="relative h-8 bg-white/10 rounded-lg overflow-hidden">
               <div className="absolute inset-0 flex">
                 {/* Caller segment */}
@@ -277,7 +295,7 @@ const CallReportVisualization: React.FC<CallReportVisualizationProps> = ({ callI
                     style={{ width: `${report.speakingTimeSplit.caller}%` }}
                   >
                     {report.speakingTimeSplit.caller > 10 && (
-                      <span className="text-xs font-medium text-white">Caller {report.speakingTimeSplit.caller}%</span>
+                      <span className="text-xs font-medium text-[#E2E8F0]">Caller {report.speakingTimeSplit.caller}%</span>
                     )}
                   </div>
                 )}
@@ -288,7 +306,7 @@ const CallReportVisualization: React.FC<CallReportVisualizationProps> = ({ callI
                     style={{ width: `${report.speakingTimeSplit.callee}%` }}
                   >
                     {report.speakingTimeSplit.callee > 10 && (
-                      <span className="text-xs font-medium text-white">Callee {report.speakingTimeSplit.callee}%</span>
+                      <span className="text-xs font-medium text-[#E2E8F0]">Callee {report.speakingTimeSplit.callee}%</span>
                     )}
                   </div>
                 )}
@@ -297,13 +315,13 @@ const CallReportVisualization: React.FC<CallReportVisualizationProps> = ({ callI
             {/* Labels below the bar */}
             <div className="flex items-center justify-between mt-2 text-xs">
               {report.speakingTimeSplit.caller !== undefined && (
-                <span className="text-[#A1A1AA]">
-                  Caller: <span className="text-white font-medium">{report.speakingTimeSplit.caller}%</span>
+                <span className="text-[#A0AEC0]">
+                  Caller: <span className="text-[#E2E8F0] font-medium">{report.speakingTimeSplit.caller}%</span>
                 </span>
               )}
               {report.speakingTimeSplit.callee !== undefined && (
-                <span className="text-[#A1A1AA]">
-                  Callee: <span className="text-white font-medium">{report.speakingTimeSplit.callee}%</span>
+                <span className="text-[#A0AEC0]">
+                  Callee: <span className="text-[#E2E8F0] font-medium">{report.speakingTimeSplit.callee}%</span>
                 </span>
               )}
             </div>
@@ -316,11 +334,11 @@ const CallReportVisualization: React.FC<CallReportVisualizationProps> = ({ callI
         {/* Areas to Improve */}
         {report.areasToImprove && report.areasToImprove.length > 0 && (
           <div>
-            <p className="text-xs text-[#A1A1AA] mb-3">Areas to Improve</p>
+            <p className="text-xs text-[#A0AEC0] mb-3">Areas to Improve</p>
             <ul className="space-y-2">
               {report.areasToImprove.map((item, idx) => (
-                <li key={idx} className="text-sm text-white flex items-start gap-2">
-                  <span className="text-[#A1A1AA] mt-0.5">•</span>
+                <li key={idx} className="text-sm text-[#E2E8F0] flex items-start gap-2">
+                  <span className="text-[#A0AEC0] mt-0.5">•</span>
                   <span>{item}</span>
                 </li>
               ))}

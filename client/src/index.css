@@ -1,7 +1,6 @@
 @import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-
 @custom-variant dark (&:is(.dark *));
 
 @layer base {
@@ -11,30 +10,31 @@
 }
 
 :root {
-  --background: 28 28 30; /* #1C1C1E */
+  --background: 28 28 30; /* #1C1C1E - light black/dark charcoal */
   --foreground: 0 0% 100%; /* #FFFFFF */
-  --card: 44 44 46; /* #2C2C2E */
+  --card: 39 39 42; /* #27272A - lighter dark gray */
   --card-foreground: 0 0% 100%; /* #FFFFFF */
-  --popover: 44 44 46; /* #2C2C2E */
+  --popover: 39 39 42; /* #27272A */
   --popover-foreground: 0 0% 100%; /* #FFFFFF */
   --primary: 0 0% 100%; /* #FFFFFF */
   --primary-foreground: 0 0% 100%; /* #FFFFFF */
-  --secondary: 44 44 46; /* #2C2C2E */
+  --secondary: 39 39 42; /* #27272A */
   --secondary-foreground: 0 0% 100%; /* #FFFFFF */
-  --muted: 44 44 46; /* #2C2C2E */
-  --muted-foreground: 0 0% 64%; /* #A1A1AA */
+  --muted: 39 39 42; /* #27272A */
+  --muted-foreground: 0 0% 67%; /* #AAAAAA - muted gray */
   --accent: 0 0% 100%; /* #FFFFFF */
   --accent-foreground: 0 0% 100%; /* #FFFFFF */
   --destructive: 0 84% 60%; /* #EF4444 */
   --destructive-foreground: 0 0% 100%; /* #FFFFFF */
-  --border: 63 63 70; /* #3F3F46 */
-  --input: 63 63 70; /* #3F3F46 */
+  --border: 39 39 42; /* #27272A */
+  --input: 39 39 42; /* #27272A */
   --ring: 0 0% 100%; /* #FFFFFF */
   --radius: 1rem;
 
   /* Custom colors */
-  --positive: 142 76% 36%; /* #22C55E */
-  --negative: 0 84% 60%; /* #EF4444 */ --chart-1: oklch(0.65 0.25 25); --chart-2: oklch(0.8 0.15 85); --chart-3: oklch(0.7 0.2 140); --chart-4: oklch(0.7 0.2 240); --chart-5: oklch(0.6 0.25 300); --sidebar: oklch(0 0 0 / 0.9); --sidebar-foreground: oklch(1 0 0); --sidebar-primary: oklch(0.65 0.25 25); --sidebar-primary-foreground: oklch(1 0 0); --sidebar-accent: oklch(0.65 0.25 25); --sidebar-accent-foreground: oklch(1 0 0); --sidebar-border: oklch(1 0 0 / 0.2); --sidebar-ring: oklch(1 0 0 / 0.3); --font-geist-sans: "Geist Sans", sans-serif; --font-geist-mono: "Geist Mono", monospace;
+  --positive: 142 63% 50%; /* #48BB78 - softer UI green */
+  --negative: 0 73% 69%; /* #F56565 - softer UI red */
+  --accent-primary: 239 84% 67%; /* #6366F1 - vibrant indigo */
 }
 
 @theme inline {

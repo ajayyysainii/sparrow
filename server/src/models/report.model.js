@@ -10,18 +10,21 @@ const reportSchema = new mongoose.Schema({
     type: String,
     required: false,
     enum: ['Positive', 'Neutral', 'Negative'],
+    default: null,
   },
   confidenceLevel: {
     type: Number,
     required: false,
     min: 0,
     max: 100,
+    default: null,
   },
   vocabularyRichness: {
     type: Number,
     required: false,
     min: 0,
     max: 100,
+    default: null,
   },
   speakingTimeSplit: {
     caller: {

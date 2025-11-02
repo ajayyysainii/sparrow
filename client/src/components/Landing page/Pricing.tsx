@@ -36,11 +36,30 @@ const FeatureItem = ({ text, isDark = false, index }: FeatureItemProps) => (
 export default function Pricing() {
   const [hoveredCard, setHoveredCard] = useState<string | null>(null)
 
-  const commonFeatures = [
-    "Web site of the restaurant",
-    "Delivery & Takeaway",
-    "Contactless QR Table Ordering",
-    "Online Payments (Credit cards / Apple / Google Pay)",
+  const premiumFeatures = [
+    "Unlimited Voice Health Checks",
+    "Unlimited Call Reports & Analysis",
+    "Premium AI Analysis & Insights",
+    "Priority Customer Support",
+    "Advanced Analytics Dashboard",
+    "30 Days Full Access",
+    "Bonus 3 Credits on Upgrade",
+  ]
+
+  const standardFeatures = [
+    "3 Tokens to get started",
+    "Basic Voice Health Checks",
+    "Limited Call Reports",
+    "Standard AI Analysis",
+  ]
+
+  const customFeatures = [
+    "All Premium features, plus:",
+    "Custom duration & pricing",
+    "Dedicated account manager",
+    "Priority support & onboarding",
+    "Custom integrations",
+    "Team collaboration tools",
   ]
 
   return (
@@ -59,7 +78,7 @@ export default function Pricing() {
 
         {/* Pricing Cards with Apple design */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {/* Standard Card */}
+          {/* Standard Card - Free */}
           <div 
             className="group relative flex flex-col p-10 rounded-3xl bg-white/5 backdrop-blur-2xl text-white border border-white/10 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] hover:bg-white/10 hover:border-white/20 hover:shadow-2xl hover:shadow-purple-500/10 hover:-translate-y-2"
             onMouseEnter={() => setHoveredCard('standard')}
@@ -73,14 +92,13 @@ export default function Pricing() {
             <div className="relative z-10">
               <h3 className="text-2xl font-semibold mb-3 text-white tracking-tight">Standard</h3>
               <div className="mb-4">
-                <span className="text-5xl font-light text-white tracking-tight">$30</span>
-                <span className="text-lg font-normal text-white/60 ml-2">per month</span>
+                <span className="text-5xl font-light text-white tracking-tight">Free</span>
               </div>
               <p className="text-[15px] text-white/70 mb-8 leading-relaxed">
-                The customer support plan for individuals, startups, and small businesses.
+                Perfect for getting started with voice health monitoring.
               </p>
               <ul className="mb-10">
-                {commonFeatures.map((feature, index) => (
+                {standardFeatures.map((feature, index) => (
                   <FeatureItem key={index} text={feature} index={index} />
                 ))}
               </ul>
@@ -90,7 +108,7 @@ export default function Pricing() {
             </div>
           </div>
 
-          {/* Smart Card (Popular) - Elevated with gradient */}
+          {/* Premium Card (Rs 499) - Popular */}
           <div 
             className="group relative flex flex-col p-10 rounded-3xl bg-gradient-to-br from-purple-600/20 via-purple-500/10 to-transparent backdrop-blur-2xl text-white border border-purple-500/30 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] hover:border-purple-500/50 hover:shadow-2xl hover:shadow-purple-500/20 hover:-translate-y-3 scale-105 md:scale-100"
             onMouseEnter={() => setHoveredCard('smart')}
@@ -111,18 +129,17 @@ export default function Pricing() {
             <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-purple-500/10 via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             
             <div className="relative z-10">
-              <h3 className="text-2xl font-semibold mb-3 text-white tracking-tight">Smart</h3>
+              <h3 className="text-2xl font-semibold mb-3 text-white tracking-tight">Premium</h3>
               <div className="mb-4">
-                <span className="text-5xl font-light text-white tracking-tight">$65</span>
-                <span className="text-lg font-normal text-white/60 ml-2">per month</span>
+                <span className="text-5xl font-light text-white tracking-tight">₹499</span>
+                <span className="text-lg font-normal text-white/60 ml-2">30 days</span>
               </div>
               <p className="text-[15px] text-white/70 mb-8 leading-relaxed">
-                The customer support plan for individuals, startups, and small businesses.
+                Unlock unlimited access to all features for 30 days.
               </p>
               <ul className="mb-10">
-                <FeatureItem text="Everything in Standard, plus:" isDark={true} index={0} />
-                {commonFeatures.map((feature, index) => (
-                  <FeatureItem key={index} text={feature} isDark={true} index={index + 1} />
+                {premiumFeatures.map((feature, index) => (
+                  <FeatureItem key={index} text={feature} isDark={true} index={index} />
                 ))}
               </ul>
               <button className="mt-auto w-full py-4 bg-white text-black rounded-2xl font-medium text-[15px] transition-all duration-300 hover:bg-white/90 hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-black/30">
@@ -131,7 +148,7 @@ export default function Pricing() {
             </div>
           </div>
 
-          {/* Pro Card */}
+          {/* Custom Plan Card */}
           <div 
             className="group relative flex flex-col p-10 rounded-3xl bg-white/5 backdrop-blur-2xl text-white border border-white/10 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] hover:bg-white/10 hover:border-white/20 hover:shadow-2xl hover:shadow-purple-500/10 hover:-translate-y-2"
             onMouseEnter={() => setHoveredCard('pro')}
@@ -143,20 +160,18 @@ export default function Pricing() {
           >
             <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-white/0 via-white/0 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <div className="relative z-10">
-              <h3 className="text-2xl font-semibold mb-3 text-white tracking-tight">Pro</h3>
+              <h3 className="text-2xl font-semibold mb-3 text-white tracking-tight">Custom</h3>
               <div className="mb-4">
-                <span className="text-5xl font-light text-white tracking-tight">$95</span>
-                <span className="text-lg font-normal text-white/60 ml-2">per month</span>
+                <span className="text-5xl font-light text-white tracking-tight">Custom</span>
+                <span className="text-lg font-normal text-white/60 ml-2">pricing</span>
               </div>
               <p className="text-[15px] text-white/70 mb-8 leading-relaxed">
-                The customer support plan for individuals, startups, and small businesses.
+                Tailored solutions for teams and enterprises with custom pricing.
               </p>
               <ul className="mb-10">
-                <FeatureItem text="Everything in Standard and Smart, plus:" index={0} />
-                {commonFeatures.map((feature, index) => (
-                  <FeatureItem key={index} text={feature} index={index + 1} />
+                {customFeatures.map((feature, index) => (
+                  <FeatureItem key={index} text={feature} index={index} />
                 ))}
-                <FeatureItem text="Delivery & Takeaway" index={commonFeatures.length + 1} />
               </ul>
               <button className="mt-auto w-full py-4 bg-white text-black rounded-2xl font-medium text-[15px] transition-all duration-300 hover:bg-white/90 hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-black/20">
                 View all features

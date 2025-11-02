@@ -20,6 +20,19 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Password is required'],
     minlength: [6, 'Password must be at least 6 characters'],
   },
+  credits: {
+    type: Number,
+    default: 3,
+    min: 0,
+  },
+  isPremium: {
+    type: Boolean,
+    default: false,
+  },
+  premiumExpiry: {
+    type: Date,
+    default: null,
+  },
 }, {
   timestamps: true,
 });
@@ -40,6 +53,19 @@ userSchema.pre('save', async function(next) {
 // Method to compare password
 userSchema.methods.comparePassword = async function(candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
+};
+
+// Method to check if premium is valid
+userSchema.methods.isPremiumValid = function() {
+  if (!this.isPremium || !this.premiumExpiry) {
+    return false;
+  }
+  return new Date() < this.premiumExpiry;
+};
+
+// Method to check if user can use feature (has credits or premium)
+userSchema.methods.canUseFeature = function() {
+  return this.isPremiumValid() || this.credits > 0;
 };
 
 const User = mongoose.model('User', userSchema);

@@ -205,7 +205,7 @@ const VapiWidget: React.FC<VapiWidgetProps> = ({
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.4, duration: 0.4 }}
-              className="text-xl text-[#A1A1AA] mb-12 leading-relaxed font-normal"
+              className="text-xl text-[#E0E0E0] mb-12 leading-relaxed font-normal"
             >
               Start a natural voice conversation with your AI assistant
             </motion.p>
@@ -218,7 +218,7 @@ const VapiWidget: React.FC<VapiWidgetProps> = ({
               whileTap={{ scale: 0.95 }}
               onClick={startCall}
               disabled={isCreatingCall}
-              className="bg-white text-gray-900 border-0 rounded-full px-8 py-4 text-lg font-semibold cursor-pointer inline-flex items-center gap-3 transition-all duration-200 shadow-lg shadow-black/20 hover:shadow-xl hover:shadow-black/30 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-white text-gray-900 border-0 rounded-lg px-8 py-4 text-lg font-semibold cursor-pointer inline-flex items-center gap-3 transition-all duration-200 shadow-lg shadow-white/30 hover:shadow-xl hover:shadow-white/40 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Phone className="w-5 h-5" />
               <span>{isCreatingCall ? 'Creating Call...' : 'Start Call'}</span>
@@ -249,7 +249,7 @@ const VapiWidget: React.FC<VapiWidgetProps> = ({
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5 }}
-                className="flex-1 h-96 max-w-md bg-[#2C2C2E] rounded-3xl border border-[#3F3F46] p-12 relative overflow-hidden"
+                className="flex-1 h-96 max-w-md bg-[#27272A] rounded-lg border border-[#27272A] p-12 relative overflow-hidden"
               >
                 <div className="w-full h-full flex flex-col items-center justify-center">
                   <div className="w-64 h-64 mb-6 relative">
@@ -268,7 +268,7 @@ const VapiWidget: React.FC<VapiWidgetProps> = ({
                     <div className={`w-2 h-2 rounded-full ${
                       isSpeaking ? 'bg-white' : 'bg-green-500'
                     }`} />
-                    <span className="text-sm text-[#A1A1AA] font-medium">
+                    <span className="text-sm text-[#AAAAAA] font-medium">
                       {isSpeaking ? 'Speaking' : 'Listening'}
                     </span>
                   </div>
@@ -280,7 +280,7 @@ const VapiWidget: React.FC<VapiWidgetProps> = ({
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
-                className="flex-1 h-96 max-w-md bg-[#2C2C2E] rounded-3xl border border-[#3F3F46] p-12 relative overflow-hidden"
+                className="flex-1 h-96 max-w-md bg-[#27272A] rounded-lg border border-[#27272A] p-12 relative overflow-hidden"
               >
                 <div className="w-full h-full flex flex-col items-center justify-center">
                   <div className="w-64 h-64 mb-6 relative">
@@ -297,9 +297,9 @@ const VapiWidget: React.FC<VapiWidgetProps> = ({
                   {/* Status */}
                   <div className="flex items-center gap-2 mt-4">
                     <div className={`w-2 h-2 rounded-full ${
-                      isUserSpeaking ? 'bg-white' : 'bg-[#A1A1AA]'
+                      isUserSpeaking ? 'bg-white' : 'bg-[#A0AEC0]'
                     }`} />
-                    <span className="text-sm text-[#A1A1AA] font-medium">
+                    <span className="text-sm text-[#AAAAAA] font-medium">
                       {isUserSpeaking ? 'Speaking' : 'Listening'}
                     </span>
                   </div>

@@ -288,13 +288,19 @@ export class CallController {
 4. Speaking Time Split: Estimate percentage of speaking time between caller and callee
 5. Areas to Improve: List 3-5 key areas for improvement
 
+IMPORTANT RULES:
+- If the caller spoke 100% and callee 0%, set sentimentAnalysis, confidenceLevel, and vocabularyRichness to null (these cannot be evaluated)
+- If there is silence, background noise only, or insufficient speech content, set these three fields to null
+- Only provide sentimentAnalysis, confidenceLevel, and vocabularyRichness when there is meaningful two-way conversation with the callee
+- Areas to Improve should still be provided even if other fields are null
+
 Transcript: ${transcript}
 
-Please provide your response in the following JSON format:
+Please provide your response in the following JSON format (use null for fields that cannot be evaluated):
 {
-  "sentimentAnalysis": "Positive/Neutral/Negative",
-  "confidenceLevel": 85,
-  "vocabularyRichness": 75,
+  "sentimentAnalysis": "Positive/Neutral/Negative or null",
+  "confidenceLevel": 85 or null,
+  "vocabularyRichness": 75 or null,
   "speakingTimeSplit": {
     "caller": 60,
     "callee": 40
@@ -305,13 +311,12 @@ Please provide your response in the following JSON format:
     "Area 3"
   ]
 }`;
-
       const completion = await getGroqClient().chat.completions.create({
         messages: [
           {
             role: "system",
             content:
-              "You are an expert call analyst. Analyze call transcripts and provide structured feedback.",
+              "You are an expert call analyst. Analyze call transcripts and provide structured feedback. ",
           },
           {
             role: "user",
@@ -338,9 +343,9 @@ Please provide your response in the following JSON format:
       } catch (parseError) {
         // Fallback to default values
         reportData = {
-          sentimentAnalysis: "Neutral",
-          confidenceLevel: 50,
-          vocabularyRichness: 50,
+          sentimentAnalysis: null,
+          confidenceLevel: null,
+          vocabularyRichness: null,
           speakingTimeSplit: {
             caller: 50,
             callee: 50,
@@ -349,12 +354,34 @@ Please provide your response in the following JSON format:
         };
       }
 
+      // Validate speaking time split
+      if (!reportData.speakingTimeSplit || 
+          (typeof reportData.speakingTimeSplit.caller !== 'number') ||
+          (typeof reportData.speakingTimeSplit.callee !== 'number')) {
+        reportData.speakingTimeSplit = {
+          caller: 50,
+          callee: 50,
+        };
+      }
+
+      // If caller is 100%, ensure other fields are null
+      if (reportData.speakingTimeSplit.caller === 100 && reportData.speakingTimeSplit.callee === 0) {
+        reportData.sentimentAnalysis = null;
+        reportData.confidenceLevel = null;
+        reportData.vocabularyRichness = null;
+      }
+
+      // Helper to safely convert to null
+      const toNullSafe = (value) => {
+        return (value !== undefined && value !== null && value !== '') ? value : null;
+      };
+
       // Create and save the report
       report = await Report.create({
         callId: call._id,
-        sentimentAnalysis: reportData.sentimentAnalysis,
-        confidenceLevel: reportData.confidenceLevel,
-        vocabularyRichness: reportData.vocabularyRichness,
+        sentimentAnalysis: toNullSafe(reportData.sentimentAnalysis),
+        confidenceLevel: toNullSafe(reportData.confidenceLevel),
+        vocabularyRichness: toNullSafe(reportData.vocabularyRichness),
         speakingTimeSplit: reportData.speakingTimeSplit,
         areasToImprove: reportData.areasToImprove || [],
       });
