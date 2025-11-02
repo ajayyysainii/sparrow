@@ -24,12 +24,17 @@ import {
   Area,
   BarChart,
   Bar,
+  PieChart,
+  Pie,
+  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
   Legend,
+  LineChart,
+  Line,
 } from 'recharts';
 
 const DashboardPage: React.FC = () => {
@@ -40,6 +45,15 @@ const DashboardPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState<{ streak: number; totalPoints: number } | null>(null);
   const [totalCost, setTotalCost] = useState<number>(0);
+  const [dashboardStats, setDashboardStats] = useState<{
+    recentReports: any[];
+    latestReport: any;
+    averages: { avgJitter: number; avgShimmer: number; mfccMean: number[]; mfccStd: number[] };
+    weeklyData: Array<{ date: string; jitter: number; shimmer: number }>;
+    predictionDistribution: Record<string, number>;
+    exerciseProgress: { completed: number; total: number };
+  } | null>(null);
+  const [dashboardLoading, setDashboardLoading] = useState(true);
 
   // Fetch real call data from API
   useEffect(() => {
@@ -133,6 +147,47 @@ const DashboardPage: React.FC = () => {
     }
   }, [token]);
 
+  // Fetch dashboard stats from API
+  useEffect(() => {
+    const fetchDashboardStats = async () => {
+      try {
+        setDashboardLoading(true);
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json",
+        };
+        
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/stats/dashboard`, {
+          headers,
+        });
+
+        if (response.data.success && response.data.data) {
+          setDashboardStats(response.data.data);
+        }
+      } catch (err: any) {
+        console.error('Error fetching dashboard stats:', err);
+        // Set default values on error
+        setDashboardStats({
+          recentReports: [],
+          latestReport: null,
+          averages: { avgJitter: 0, avgShimmer: 0, mfccMean: [], mfccStd: [] },
+          weeklyData: [],
+          predictionDistribution: {},
+          exerciseProgress: { completed: 0, total: 9 },
+        });
+      } finally {
+        setDashboardLoading(false);
+      }
+    };
+
+    if (token) {
+      fetchDashboardStats();
+    }
+  }, [token]);
+
   // Process real calls for table display (top 5 most recent)
   const recentCalls = useMemo(() => {
     return calls
@@ -150,29 +205,48 @@ const DashboardPage: React.FC = () => {
       }));
   }, [calls]);
 
-  // Mock data for charts and metrics
-  const callData = useMemo(
-    () => [
-      { name: 'Mon', calls: 12, duration: 45 },
-      { name: 'Tue', calls: 19, duration: 62 },
-      { name: 'Wed', calls: 15, duration: 52 },
-      { name: 'Thu', calls: 24, duration: 78 },
-      { name: 'Fri', calls: 18, duration: 58 },
-      { name: 'Sat', calls: 8, duration: 32 },
-      { name: 'Sun', calls: 5, duration: 21 },
-    ],
-    []
-  );
+  // Process weekly data for line chart (Voice Health Metrics)
+  const weeklyData = useMemo(() => {
+    if (!dashboardStats?.weeklyData || dashboardStats.weeklyData.length === 0) {
+      return [];
+    }
+    return dashboardStats.weeklyData.map((entry) => {
+      // Handle date parsing - entry.date is in "YYYY-MM-DD" format
+      let formattedDate = entry.date;
+      try {
+        const date = new Date(entry.date + 'T00:00:00'); // Add time to avoid timezone issues
+        if (!isNaN(date.getTime())) {
+          formattedDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+      } catch (e) {
+        // Keep original date if parsing fails
+      }
+      
+      return {
+        date: formattedDate,
+        jitter: entry.jitter ? Number(entry.jitter.toFixed(4)) : 0,
+        shimmer: entry.shimmer ? Number(entry.shimmer.toFixed(4)) : 0,
+      };
+    });
+  }, [dashboardStats]);
 
-  const sentimentData = useMemo(
-    () => [
-      { name: 'Week 1', positive: 65, neutral: 25, negative: 10 },
-      { name: 'Week 2', positive: 72, neutral: 18, negative: 10 },
-      { name: 'Week 3', positive: 68, neutral: 22, negative: 10 },
-      { name: 'Week 4', positive: 75, neutral: 15, negative: 10 },
-    ],
-    []
-  );
+  // Process prediction distribution for pie chart
+  const predictionData = useMemo(() => {
+    if (!dashboardStats?.predictionDistribution) {
+      return [];
+    }
+    const colors = {
+      Healthy: '#2D9D7A',
+      Laryngitis: '#FBBF24',
+      Vocal_Polyp: '#F56565',
+    };
+    
+    return Object.entries(dashboardStats.predictionDistribution).map(([name, value]) => ({
+      name,
+      value: Number(value),
+      color: colors[name as keyof typeof colors] || '#AAAAAA',
+    }));
+  }, [dashboardStats]);
 
   const metrics = useMemo(
     () => [
@@ -283,7 +357,7 @@ const DashboardPage: React.FC = () => {
 
         {/* Charts Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Call Volume Chart */}
+          {/* Voice Health Metrics Chart */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -292,79 +366,117 @@ const DashboardPage: React.FC = () => {
           >
             <Card className="border-[#27272A] bg-[#27272A] hover:border-white/50 hover:shadow-lg hover:shadow-white/10 transition-all duration-200">
               <CardHeader>
-                <CardTitle>Call Volume</CardTitle>
+                <CardTitle>Voice Health Metrics</CardTitle>
                 <CardDescription className="text-[#AAAAAA]">
-                  Calls and duration over the past week
+                  Jitter and Shimmer over time
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <AreaChart data={callData}>
-                    <defs>
-                      <linearGradient
-                        id="colorCalls"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop
-                          offset="5%"
-                          stopColor="#FFFFFF"
-                          stopOpacity={0.3}
-                        />
-                        <stop
-                          offset="95%"
-                          stopColor="#FFFFFF"
-                          stopOpacity={0}
-                        />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      stroke="#3F3F46"
-                      opacity={0.8}
-                    />
-                    <XAxis
-                      dataKey="name"
-                      stroke="#AAAAAA"
-                      style={{ fontSize: '12px' }}
-                    />
-                    <YAxis stroke="#AAAAAA" style={{ fontSize: '12px' }} />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: '#27272A',
-                        border: '1px solid #27272A',
-                        borderRadius: '8px',
-                        color: 'white',
-                        padding: '6px 10px',
-                        fontSize: '12px',
-                      }}
-                      itemStyle={{
-                        color: 'white',
-                        padding: '2px 0',
-                        fontSize: '12px',
-                      }}
-                      labelStyle={{
-                        color: '#AAAAAA',
-                        fontSize: '11px',
-                        marginBottom: '4px',
-                      }}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="calls"
-                      stroke="#FFFFFF"
-                      strokeWidth={2}
-                      fill="url(#colorCalls)"
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
+                {dashboardLoading ? (
+                  <div className="flex items-center justify-center h-[300px]">
+                    <div className="text-[#AAAAAA]">Loading chart data...</div>
+                  </div>
+                ) : weeklyData.length === 0 ? (
+                  <div className="flex items-center justify-center h-[300px]">
+                    <div className="text-[#AAAAAA]">No data available</div>
+                  </div>
+                ) : (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={weeklyData}>
+                      <defs>
+                        <linearGradient
+                          id="colorJitter"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="5%"
+                            stopColor="#2D9D7A"
+                            stopOpacity={0.3}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="#2D9D7A"
+                            stopOpacity={0}
+                          />
+                        </linearGradient>
+                        <linearGradient
+                          id="colorShimmer"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="5%"
+                            stopColor="#FBBF24"
+                            stopOpacity={0.3}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="#FBBF24"
+                            stopOpacity={0}
+                          />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke="#3F3F46"
+                        opacity={0.8}
+                      />
+                      <XAxis
+                        dataKey="date"
+                        stroke="#AAAAAA"
+                        style={{ fontSize: '12px' }}
+                      />
+                      <YAxis stroke="#AAAAAA" style={{ fontSize: '12px' }} />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: '#27272A',
+                          border: '1px solid #27272A',
+                          borderRadius: '8px',
+                          color: 'white',
+                          padding: '6px 10px',
+                          fontSize: '12px',
+                        }}
+                        itemStyle={{
+                          color: 'white',
+                          padding: '2px 0',
+                          fontSize: '12px',
+                        }}
+                        labelStyle={{
+                          color: '#AAAAAA',
+                          fontSize: '11px',
+                          marginBottom: '4px',
+                        }}
+                      />
+                      <Legend />
+                      <Line
+                        type="monotone"
+                        dataKey="jitter"
+                        stroke="#2D9D7A"
+                        strokeWidth={2}
+                        fill="url(#colorJitter)"
+                        name="Jitter"
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="shimmer"
+                        stroke="#FBBF24"
+                        strokeWidth={2}
+                        fill="url(#colorShimmer)"
+                        name="Shimmer"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                )}
               </CardContent>
             </Card>
           </motion.div>
 
-          {/* Sentiment Analysis Chart */}
+          {/* Prediction Distribution Chart */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -373,51 +485,56 @@ const DashboardPage: React.FC = () => {
           >
             <Card className="border-[#27272A] bg-[#27272A] hover:border-white/50 hover:shadow-lg hover:shadow-white/10 transition-all duration-200">
               <CardHeader>
-                <CardTitle>Cost Analysis</CardTitle>
+                <CardTitle>Prediction Distribution</CardTitle>
                 <CardDescription className="text-[#AAAAAA]">
-                  Weekly cost breakdown
+                  Voice health predictions breakdown
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={sentimentData}>
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      stroke="#3F3F46"
-                      opacity={0.8}
-                    />
-                    <XAxis
-                      dataKey="name"
-                      stroke="#AAAAAA"
-                      style={{ fontSize: '12px' }}
-                    />
-                    <YAxis stroke="#AAAAAA" style={{ fontSize: '12px' }} />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: '#27272A',
-                        border: '1px solid #27272A',
-                        borderRadius: '8px',
-                        color: 'white',
-                        padding: '6px 10px',
-                        fontSize: '12px',
-                      }}
-                      itemStyle={{
-                        color: 'white',
-                        padding: '2px 0',
-                        fontSize: '12px',
-                      }}
-                      labelStyle={{
-                        color: '#AAAAAA',
-                        fontSize: '11px',
-                        marginBottom: '4px',
-                      }}
-                    />
-                    <Legend />
-                    <Bar dataKey="positive" fill="#2D9D7A" radius={[8, 8, 0, 0]} />
-                    <Bar dataKey="neutral" fill="#FBBF24" radius={[8, 8, 0, 0]} />
-                    <Bar dataKey="negative" fill="#F56565" radius={[8, 8, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
+                {dashboardLoading ? (
+                  <div className="flex items-center justify-center h-[300px]">
+                    <div className="text-[#AAAAAA]">Loading chart data...</div>
+                  </div>
+                ) : predictionData.length === 0 ? (
+                  <div className="flex items-center justify-center h-[300px]">
+                    <div className="text-[#AAAAAA]">No prediction data available</div>
+                  </div>
+                ) : (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <PieChart>
+                      <Pie
+                        data={predictionData}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                        outerRadius={100}
+                        fill="#8884d8"
+                        dataKey="value"
+                      >
+                        {predictionData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: '#27272A',
+                          border: '1px solid #27272A',
+                          borderRadius: '8px',
+                          color: 'white',
+                          padding: '6px 10px',
+                          fontSize: '12px',
+                        }}
+                        itemStyle={{
+                          color: 'white',
+                          padding: '2px 0',
+                          fontSize: '12px',
+                        }}
+                      />
+                      <Legend />
+                    </PieChart>
+                  </ResponsiveContainer>
+                )}
               </CardContent>
             </Card>
           </motion.div>

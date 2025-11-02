@@ -287,7 +287,7 @@ const CallList: React.FC<CallListProps> = ({ apiKey, onCallSelect }) => {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6 px-1">
         <div>

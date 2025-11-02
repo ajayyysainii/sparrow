@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 @custom-variant dark (&:is(.dark *));
 
@@ -32,14 +31,30 @@
   --radius: 1rem;
 
   /* Custom colors */
-<<<<<<< Updated upstream
-  --positive: 142 76% 36%; /* #22C55E */
-  --negative: 0 84% 60%; /* #EF4444 */ --chart-1: oklch(0.65 0.25 25); --chart-2: oklch(0.8 0.15 85); --chart-3: oklch(0.7 0.2 140); --chart-4: oklch(0.7 0.2 240); --chart-5: oklch(0.6 0.25 300); --sidebar: oklch(0 0 0 / 0.9); --sidebar-foreground: oklch(1 0 0); --sidebar-primary: oklch(0.65 0.25 25); --sidebar-primary-foreground: oklch(1 0 0); --sidebar-accent: oklch(0.65 0.25 25); --sidebar-accent-foreground: oklch(1 0 0); --sidebar-border: oklch(1 0 0 / 0.2); --sidebar-ring: oklch(1 0 0 / 0.3); --font-geist-sans: "Geist Sans", sans-serif; --font-geist-mono: "Geist Mono", monospace;
-=======
   --positive: 142 63% 50%; /* #48BB78 - softer UI green */
   --negative: 0 73% 69%; /* #F56565 - softer UI red */
   --accent-primary: 239 84% 67%; /* #6366F1 - vibrant indigo */
->>>>>>> Stashed changes
+  
+  /* Chart colors */
+  --chart-1: oklch(0.65 0.25 25);
+  --chart-2: oklch(0.8 0.15 85);
+  --chart-3: oklch(0.7 0.2 140);
+  --chart-4: oklch(0.7 0.2 240);
+  --chart-5: oklch(0.6 0.25 300);
+  
+  /* Sidebar colors */
+  --sidebar: oklch(0 0 0 / 0.9);
+  --sidebar-foreground: oklch(1 0 0);
+  --sidebar-primary: oklch(0.65 0.25 25);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.65 0.25 25);
+  --sidebar-accent-foreground: oklch(1 0 0);
+  --sidebar-border: oklch(1 0 0 / 0.2);
+  --sidebar-ring: oklch(1 0 0 / 0.3);
+  
+  /* Font families */
+  --font-geist-sans: "Geist Sans", sans-serif;
+  --font-geist-mono: "Geist Mono", monospace;
 }
 
 @theme inline {
