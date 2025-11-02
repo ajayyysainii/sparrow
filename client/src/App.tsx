@@ -20,11 +20,7 @@ function App() {
           
           {/* Auth routes without Layout */}
           <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={
-            <Layout>
-              <Signup />
-            </Layout>
-          } />
+          <Route path="/signup" element={<Signup />} />
           
           {/* Dashboard Routes - Protected */}
           <Route path="/dashboard" element={

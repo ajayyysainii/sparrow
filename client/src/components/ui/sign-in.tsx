@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Eye, EyeOff } from 'lucide-react';
 
 // --- TYPE DEFINITIONS ---
@@ -23,97 +24,216 @@ interface SignInPageProps {
 // --- SUB-COMPONENTS ---
 
 const GlassInputWrapper = ({ children }: { children: React.ReactNode }) => (
-  <div className="rounded-2xl border border-[rgb(63,63,70)] bg-foreground/5 backdrop-blur-sm transition-colors focus-within:border-violet-400/70 focus-within:bg-violet-500/10">
+  <motion.div
+    initial={{ opacity: 0, y: 10 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.3 }}
+    className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl transition-all duration-300 focus-within:border-white/20 focus-within:bg-white/10 focus-within:shadow-lg focus-within:shadow-white/5"
+  >
     {children}
-  </div>
-);
-
-const TestimonialCard = ({ testimonial, delay }: { testimonial: Testimonial, delay: string }) => (
-  <div className={`animate-testimonial ${delay} flex items-start gap-3 rounded-3xl bg-card/40 dark:bg-zinc-800/40 backdrop-blur-xl border border-white/10 p-5 w-64`}>
-    <img src={testimonial.avatarSrc} className="h-10 w-10 object-cover rounded-2xl" alt="avatar" />
-    <div className="text-sm leading-snug">
-      <p className="flex items-center gap-1 font-medium">{testimonial.name}</p>
-      <p className="text-muted-foreground">{testimonial.handle}</p>
-      <p className="mt-1 text-foreground/80">{testimonial.text}</p>
-    </div>
-  </div>
+  </motion.div>
 );
 
 // --- MAIN COMPONENT ---
 
 export const SignInPage: React.FC<SignInPageProps> = ({
-  title = <span className="font-light text-foreground tracking-tighter">Welcome</span>,
-  description = "Access your account and continue your journey with us",
-  heroImageSrc,
-  testimonials = [],
+  title = (
+    <span className="font-light text-white tracking-[-0.02em]">
+      Welcome back
+    </span>
+  ),
+  description = "Sign in to continue to your account",
   onSignIn,
   onResetPassword,
   onCreateAccount,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5,
+        ease: [0.22, 1, 0.36, 1] as const,
+      },
+    },
+  };
+
   return (
-    <div className="h-[100dvh] flex flex-col md:flex-row w-[100dvw]">
-      {/* Left column: sign-in form */}
-      <section className="flex-1 flex items-center justify-center p-8">
-        <div className="w-full max-w-md">
-          <div className="flex flex-col gap-6">
-            <h1 className="animate-element animate-delay-100 text-4xl md:text-5xl font-semibold leading-tight">{title}</h1>
-            <p className="animate-element animate-delay-200 text-muted-foreground">{description}</p>
+    <div className="h-[100dvh] w-[100dvw] relative overflow-hidden bg-transparent">
+      {/* Logo/Brand area - Left positioned */}
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5 }}
+        className="absolute top-8 left-8 z-20"
+      >
+        <h1 className="text-2xl font-semibold text-white tracking-tight">
+          Sparrow
+        </h1>
+      </motion.div>
 
-            <form className="space-y-5" onSubmit={onSignIn}>
-              <div className="animate-element animate-delay-300">
-                <label className="text-sm font-medium text-muted-foreground">Email Address</label>
-                <GlassInputWrapper>
-                  <input name="email" type="email" placeholder="Enter your email address" className="w-full bg-transparent text-sm p-4 rounded-2xl focus:outline-none" />
-                </GlassInputWrapper>
-              </div>
+      {/* Main content */}
+      <div className="relative h-full flex items-center justify-center p-6 md:p-12">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="w-full max-w-md mx-auto"
+        >
+          {/* Glass morphism container */}
+          <div className="relative rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl shadow-black/20 p-8 md:p-10">
+            {/* Title */}
+            <motion.h1
+              variants={itemVariants}
+              className="text-5xl md:text-6xl font-light text-white mb-4 tracking-tight leading-none"
+            >
+              {title}
+            </motion.h1>
 
-              <div className="animate-element animate-delay-400">
-                <label className="text-sm font-medium text-muted-foreground">Password</label>
-                <GlassInputWrapper>
-                  <div className="relative">
-                    <input name="password" type={showPassword ? 'text' : 'password'} placeholder="Enter your password" className="w-full bg-transparent text-sm p-4 pr-12 rounded-2xl focus:outline-none" />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-3 flex items-center">
-                      {showPassword ? <EyeOff className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" /> : <Eye className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />}
-                    </button>
-                  </div>
-                </GlassInputWrapper>
-              </div>
+            {/* Description */}
+            <motion.p
+              variants={itemVariants}
+              className="text-lg text-white/60 mb-10 font-light"
+            >
+              {description}
+            </motion.p>
 
-              <div className="animate-element animate-delay-500 flex items-center justify-between text-sm">
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input type="checkbox" name="rememberMe" className="custom-checkbox" />
-                  <span className="text-foreground/90">Keep me signed in</span>
-                </label>
-                <a href="#" onClick={(e) => { e.preventDefault(); onResetPassword?.(); }} className="hover:underline text-violet-400 transition-colors">Reset password</a>
-              </div>
-
-              <button type="submit" className="animate-element animate-delay-600 w-full rounded-2xl bg-primary py-4 font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
-                Sign In
-              </button>
-            </form>
-
-            <p className="animate-element animate-delay-700 text-center text-sm text-muted-foreground">
-              New to our platform? <a href="#" onClick={(e) => { e.preventDefault(); onCreateAccount?.(); }} className="text-violet-400 hover:underline transition-colors">Create Account</a>
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Right column: hero image + testimonials */}
-      {heroImageSrc && (
-        <section className="hidden md:block flex-1 relative p-4">
-          <div className="animate-slide-right animate-delay-300 absolute inset-4 rounded-3xl bg-cover bg-center" style={{ backgroundImage: `url(${heroImageSrc})` }}></div>
-          {testimonials.length > 0 && (
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-4 px-8 w-full justify-center">
-              <TestimonialCard testimonial={testimonials[0]} delay="animate-delay-1000" />
-              {testimonials[1] && <div className="hidden xl:flex"><TestimonialCard testimonial={testimonials[1]} delay="animate-delay-1200" /></div>}
-              {testimonials[2] && <div className="hidden 2xl:flex"><TestimonialCard testimonial={testimonials[2]} delay="animate-delay-1400" /></div>}
+            {/* Form */}
+            <motion.form
+              variants={itemVariants}
+              className="space-y-6"
+              onSubmit={onSignIn}
+            >
+            {/* Email Input */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-white/80 px-1">
+                Email
+              </label>
+              <GlassInputWrapper>
+                <motion.input
+                  name="email"
+                  type="email"
+                  placeholder="name@example.com"
+                  className="w-full bg-transparent text-white placeholder:text-white/30 text-base px-5 py-4 rounded-2xl focus:outline-none font-light"
+                  whileFocus={{ scale: 1.01 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                />
+              </GlassInputWrapper>
             </div>
-          )}
-        </section>
-      )}
+
+            {/* Password Input */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-white/80 px-1">
+                Password
+              </label>
+              <GlassInputWrapper>
+                <div className="relative">
+                  <motion.input
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Enter your password"
+                    className="w-full bg-transparent text-white placeholder:text-white/30 text-base px-5 py-4 pr-12 rounded-2xl focus:outline-none font-light"
+                    whileFocus={{ scale: 1.01 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                  />
+                  <motion.button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-4 flex items-center"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5 text-white/40 hover:text-white/80 transition-colors" />
+                    ) : (
+                      <Eye className="w-5 h-5 text-white/40 hover:text-white/80 transition-colors" />
+                    )}
+                  </motion.button>
+                </div>
+              </GlassInputWrapper>
+            </div>
+
+            {/* Remember me & Forgot password */}
+            <div className="flex items-center justify-between text-sm">
+              <motion.label
+                className="flex items-center gap-2 cursor-pointer group"
+                whileHover={{ scale: 1.02 }}
+              >
+                <input
+                  type="checkbox"
+                  name="rememberMe"
+                  className="w-4 h-4 rounded border-white/20 bg-white/5 checked:bg-blue-500 checked:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all cursor-pointer"
+                />
+                <span className="text-white/70 group-hover:text-white transition-colors font-light">
+                  Keep me signed in
+                </span>
+              </motion.label>
+              <motion.a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onResetPassword?.();
+                }}
+                className="text-white/70 hover:text-white transition-colors font-light"
+                whileHover={{ scale: 1.05 }}
+              >
+                Forgot password?
+              </motion.a>
+            </div>
+
+            {/* Submit Button */}
+            <motion.button
+              type="submit"
+              className="w-full rounded-2xl bg-white text-black py-4 text-base font-medium hover:bg-white/90 transition-all duration-300 shadow-lg shadow-white/10 relative overflow-hidden"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <span className="relative z-10">Sign In</span>
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20"
+                initial={{ x: "-100%" }}
+                whileHover={{ x: "100%" }}
+                transition={{ duration: 0.6 }}
+              />
+            </motion.button>
+          </motion.form>
+
+          {/* Create Account */}
+          <motion.p
+            variants={itemVariants}
+            className="text-center text-sm text-white/50 mt-8 font-light"
+          >
+            Don't have an account?{' '}
+            <motion.a
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                onCreateAccount?.();
+              }}
+              className="text-white hover:text-white/80 transition-colors underline underline-offset-4"
+              whileHover={{ scale: 1.05 }}
+            >
+              Create one
+            </motion.a>
+          </motion.p>
+          </div>
+          {/* End of glass morphism container */}
+        </motion.div>
+      </div>
     </div>
   );
 };

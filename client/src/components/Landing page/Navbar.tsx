@@ -10,10 +10,10 @@ export default function Navbar() {
   };
 
   return (
-    <header className="relative z-20 w-full h-16 grid grid-cols-[1fr_auto_1fr] items-center px-6 gap-3 bg-black">
+    <header className="relative z-20 w-full h-16 grid grid-cols-[1fr_auto_1fr] items-center px-6 gap-3 bg-transparent mix-blend-screen backdrop-blur-sm">
       {/* Left: Brand */}
       <Link to="/" className="flex items-center gap-3 no-underline">
-         <img src={image} alt="Sparrow" className="w-10 h-10 object-contain rounded-full" />
+         
         <span className="text-[22px] font-semibold tracking-[0.2px] text-white">Sparrow</span>
       </Link>
 
@@ -56,6 +56,7 @@ export default function Navbar() {
           Login
         </Link>
       </div>
+      
     </header>
   )
 }

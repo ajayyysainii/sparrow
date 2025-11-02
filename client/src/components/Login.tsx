@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 import { SignInPage, type Testimonial } from './ui/sign-in';
+import image from './../assets/logo.png'
+import DarkVeil from './DarkVeil';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -65,13 +67,20 @@ const Login: React.FC = () => {
   ];
 
   return (
-    <SignInPage
-      heroImageSrc="https://images.unsplash.com/photo-1642615835477-d303d7dc9ee9?w=2160&q=80"
-      testimonials={sampleTestimonials}
-      onSignIn={handleSubmit}
-      onResetPassword={handleResetPassword}
-      onCreateAccount={handleCreateAccount}
-    />
+    <div className="relative w-full h-[100dvh] overflow-hidden bg-black">
+      <div className="absolute inset-0 z-0">
+        <DarkVeil />
+      </div>
+      <div className="relative z-10 mix-blend-screen">
+        <SignInPage
+          heroImageSrc={image}
+          testimonials={sampleTestimonials}
+          onSignIn={handleSubmit}
+          onResetPassword={handleResetPassword}
+          onCreateAccount={handleCreateAccount}
+        />
+      </div>
+    </div>
   );
 };
 

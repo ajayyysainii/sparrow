@@ -54,23 +54,23 @@ const AppleFAQ: React.FC = () => {
   const faqs: FAQ[] = [
     {
       question: "What is Sparrow?",
-      answer: "This FAQ component features clean typography with SF Pro Display font, generous spacing, smooth animations, and a dark minimalist aesthetic that reflects Apple's modern design language. The fluid transitions create an elegant, premium user experience."
+      answer: "Sparrow is an AI-powered voice coach that helps you improve the way you speak — from tone and clarity to confidence and fluency."
     },
     {
       question: "How does Sparrow help me improve?",
-      answer: "The component uses CSS transitions with custom ease-out timing for buttery-smooth animations. The chevron icon rotates 180 degrees, while the answer section expands with coordinated height and opacity changes, creating that signature Apple feel."
+      answer: "You can talk with Sparrow’s AI assistant, get instant feedback, and complete daily speaking challenges to track your growth."
     },
     {
       question: "Is my voice data private?",
-      answer: "Absolutely! The component is built with Tailwind CSS utility classes and uses CSS custom properties for the SF Pro Display font. You can easily adjust colors, spacing, typography, and animations to match your brand while maintaining the smooth interaction patterns."
+      answer: "Yes. Your recordings are processed securely and never shared — privacy and data safety are our top priorities."
     },
     {
       question: "Who can use Sparrow?",
-      answer: "Yes, the component uses semantic HTML with proper button elements for keyboard navigation. Users can tab through questions and press Enter or Space to expand them. The high contrast dark mode design and clear hierarchy support all users, including those using assistive technologies."
+      answer: "Anyone who wants to improve communication — students, professionals, speakers, or anyone who wants to sound more confident."
     },
     {
       question: "Do I need any special equipment? ",
-      answer: "The component is fully responsive and touch-optimized. The generous tap targets, smooth 60fps animations, and adaptive layout work seamlessly across all devices, from the latest iPhones to desktop displays, maintaining that premium Apple experience everywhere."
+      answer: "No. All you need is your phone or laptop microphone to start practicing instantly."
     }
   ];
 
@@ -85,10 +85,10 @@ const AppleFAQ: React.FC = () => {
           font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
         }
       `}</style>
-      
+
       <div className="py-12 md:py-20 px-4 md:px-6">
         <div className="max-w-4xl mx-auto">
-          
+
           {/* Header Section with gradient text */}
           <div className="text-center mb-12 md:mb-20 space-y-4 md:space-y-6">
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white 
