@@ -9,26 +9,10 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import {
-  Search,
-  Bell,
-  Calendar,
-  Filter,
   TrendingUp,
   ChevronUp,
   ChevronDown,
-  User,
-  LogOut,
   Flame,
   Star,
   DollarSign,
@@ -234,62 +218,6 @@ const DashboardPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#1C1C1E] text-white">
-      {/* Top Navigation Bar */}
-      <motion.div
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="sticky top-0 z-50 border-b border-[#27272A] bg-[#27272A]/95 backdrop-blur-sm"
-      >
-        <div className="flex h-16 items-center justify-between px-6">
-          {/* Search and Filters */}
-          <div className="flex items-center gap-4 flex-1 max-w-2xl">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#AAAAAA]" />
-              <Input
-                placeholder="Search calls, users, reports..."
-                className="pl-10 bg-[#1C1C1E] border-[#27272A] text-[#E0E0E0] placeholder:text-[#AAAAAA] focus:border-white focus:ring-white"
-              />
-              <kbd className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:inline-flex h-6 items-center gap-1 rounded border border-[#27272A] bg-[#27272A] px-2 font-mono text-[10px] text-[#AAAAAA]">
-                ⌘K
-              </kbd>
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-[#AAAAAA] hover:text-white hover:bg-white/5"
-              title="Filter by date"
-            >
-              <Calendar className="h-5 w-5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-[#AAAAAA] hover:text-white hover:bg-white/5"
-              title="Filter options"
-            >
-              <Filter className="h-5 w-5" />
-            </Button>
-          </div>
-
-          {/* Right Actions */}
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative text-[#AAAAAA] hover:text-white hover:bg-white/5"
-              title="Notifications"
-            >
-              <Bell className="h-5 w-5" />
-                  <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-[#F56565]"></span>
-            </Button>
-
-            <Button className="bg-white hover:bg-white/90 text-gray-900">
-              Share Report
-            </Button>
-          </div>
-        </div>
-      </motion.div>
-
       {/* Main Content */}
       <div className="max-w-[1400px] mx-auto p-6 space-y-8">
         {/* Page Header */}

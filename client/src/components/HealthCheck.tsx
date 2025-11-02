@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { ArrowRight } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { ArrowRight, Upload, FileAudio, Download, ExternalLink, CheckCircle2, Sparkles } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import moment from "moment-timezone";
 
@@ -14,12 +15,16 @@ interface Report {
 }
 
 const HealthCheck = () => {
+  const navigate = useNavigate();
   const { user, token } = useAuth();
   const [isDiagnosing, setIsDiagnosing] = useState(false);
   const [report, setReport] = useState<Report | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [pastReports, setPastReports] = useState<Report[]>([]);
   const [loadingReports, setLoadingReports] = useState(true);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const dragCounter = useRef(0);
 
   useEffect(() => {
     if (user && token) fetchReports();
@@ -44,19 +49,78 @@ const HealthCheck = () => {
     }
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = event.target.files?.[0];
-    if (selectedFile) {
+  const validateFile = (selectedFile: File) => {
+    return new Promise<boolean>((resolve) => {
       const fileURL = URL.createObjectURL(selectedFile);
       const audio = new Audio(fileURL);
       audio.onloadedmetadata = () => {
         if (selectedFile.type === "audio/wav" && audio.duration <= 5) {
-          setFile(selectedFile);
+          URL.revokeObjectURL(fileURL);
+          resolve(true);
         } else {
-          alert("Please upload a valid WAV file with a maximum length of 5 seconds.");
-          setFile(null);
+          URL.revokeObjectURL(fileURL);
+          resolve(false);
         }
       };
+      audio.onerror = () => {
+        URL.revokeObjectURL(fileURL);
+        resolve(false);
+      };
+    });
+  };
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = event.target.files?.[0];
+    if (selectedFile) {
+      const isValid = await validateFile(selectedFile);
+      if (isValid) {
+        setFile(selectedFile);
+      } else {
+        alert("Please upload a valid WAV file with a maximum length of 5 seconds.");
+        setFile(null);
+      }
+    }
+  };
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDragIn = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current++;
+    if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+      setIsDragging(true);
+    }
+  };
+
+  const handleDragOut = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current--;
+    if (dragCounter.current === 0) {
+      setIsDragging(false);
+    }
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    dragCounter.current = 0;
+
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const selectedFile = e.dataTransfer.files[0];
+      const isValid = await validateFile(selectedFile);
+      if (isValid) {
+        setFile(selectedFile);
+      } else {
+        alert("Please upload a valid WAV file with a maximum length of 5 seconds.");
+        setFile(null);
+      }
+      e.dataTransfer.clearData();
     }
   };
 
@@ -79,15 +143,31 @@ const HealthCheck = () => {
         method: "POST",
         headers: { 
           Authorization: `Bearer ${token}`
-          // Don't set Content-Type for FormData - browser will set it automatically with boundary
         },
         body: formData,
         credentials: "include",
       });
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        if (errorData.needsUpgrade || response.status === 403) {
+          const shouldUpgrade = window.confirm(
+            errorData.message || "No credits remaining. Would you like to upgrade to Premium?"
+          );
+          if (shouldUpgrade) {
+            navigate("/dashboard/upgrade");
+          }
+          setIsDiagnosing(false);
+          return;
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
       setReport(data.report);
       fetchReports();
+      // Refresh user data to update credits
+      window.location.reload();
     } catch (error) {
       console.error("Error uploading audio:", error);
       alert("Error processing your audio file. Please try again.");
@@ -98,38 +178,21 @@ const HealthCheck = () => {
 
   const handleDownloadPDF = (url: string) => {
     try {
-      // For Cloudinary URLs, use direct link download which bypasses CORS
-      // Create an anchor element with download attribute
       const link = document.createElement("a");
-      
-      // For Cloudinary, add fl_attachment to force download
       let downloadUrl = url;
       if (url.includes('cloudinary.com')) {
-        // Check if URL already has query parameters
         const separator = url.includes('?') ? '&' : '?';
         downloadUrl = `${url}${separator}fl_attachment`;
       }
-      
       link.href = downloadUrl;
       link.download = `voice_pathology_report_${new Date().toISOString().split("T")[0]}.pdf`;
-      link.target = '_blank'; // Open in new tab as fallback
-      link.rel = 'noopener noreferrer'; // Security best practice
-      
-      // Append to body, click, then remove
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
-      // If download doesn't work (some browsers), the link will open in new tab
-      // Set a timeout to handle cases where download attribute isn't supported
-      setTimeout(() => {
-        // If the user is still on the same page after a short delay,
-        // the download likely didn't work, so we could open in new tab
-        // But we'll let the browser handle it naturally
-      }, 100);
     } catch (error) {
       console.error("Error downloading PDF:", error);
-      // Fallback: open in new tab
       window.open(url, '_blank');
     }
   };
@@ -146,108 +209,263 @@ const HealthCheck = () => {
     return moment(dateString).tz("Asia/Kolkata").format("YYYY-MM-DD HH:mm:ss");
   };
 
+  const formatShortDate = (dateString: string) => {
+    return moment(dateString).tz("Asia/Kolkata").format("MMM DD, YYYY");
+  };
+
   return (
-    <div className="font-inter bg-[#1C1C1E] min-h-screen relative">
+    <div className="font-inter min-h-screen relative bg-[#1C1C1E] text-white">
       <div className="relative z-10">
-        <main className="pt-24 pb-16 min-h-screen">
-          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <main className="pt-20 pb-24 min-h-screen">
+          <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Header Section */}
+            <div className="text-center mb-16 animate-element" style={{ filter: 'blur(0px)' }}>
+              
+              <h1 className="text-5xl sm:text-6xl font-semibold text-white mb-4 tracking-tight">
+                Voice Health Check
+              </h1>
+              <p className="text-lg text-[#A1A1AA] max-w-xl mx-auto leading-relaxed">
+                Upload your audio file in WAV format for AI-powered diagnosis. Maximum length: 5 seconds.
+              </p>
+            </div>
+
+            {/* Report Actions - Animated */}
             {report && (
-              <div className="mb-8 flex gap-4">
-                <button onClick={openCloudinaryReport} className="px-4 py-2 bg-white text-gray-900 rounded-lg">
-                  View Full Report
+              <div className="mb-8 flex flex-wrap gap-3 justify-center animate-element animate-delay-200" style={{ filter: 'blur(0px)' }}>
+                <button
+                  onClick={openCloudinaryReport}
+                  className="group relative px-6 py-3 bg-[#2C2C2E] text-white rounded-2xl border border-[#3F3F46] hover:border-white/50 hover:bg-white/5 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5 font-medium text-sm"
+                >
+                  <div className="flex items-center gap-2">
+                    <ExternalLink className="w-4 h-4" />
+                    View Full Report
+                  </div>
                 </button>
-                <button onClick={() => handleDownloadPDF(report.pdfUrl)} className="px-4 py-2 bg-white text-gray-900 rounded-lg">
-                  Download PDF
+                <button
+                  onClick={() => handleDownloadPDF(report.pdfUrl)}
+                  className="group relative px-6 py-3 bg-white text-gray-900 rounded-2xl hover:bg-white/90 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5 font-medium text-sm shadow-lg"
+                >
+                  <div className="flex items-center gap-2">
+                    <Download className="w-4 h-4" />
+                    Download PDF
+                  </div>
                 </button>
               </div>
             )}
-            <div className="text-center space-y-6">
-              <h1 className="text-5xl sm:text-6xl font-bold text-white">Voice Health Check</h1>
-              <p className="text-lg text-[#AAAAAA] max-w-2xl mx-auto">
-                Upload your audio file in WAV format for diagnosis. Maximum length: 5 seconds.
-              </p>
-              
-              {/* Hero Icon */}
-              <div className="mt-12 flex justify-center">
-                <div className="relative w-32 h-32 flex items-center justify-center">
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-white/5 rounded-[2rem] backdrop-blur-xl"></div>
-                  <div className="relative w-full h-full flex items-center justify-center">
-                    <svg className="w-16 h-16 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                    </svg>
+
+            {/* Upload Section */}
+            <div className="max-w-2xl mx-auto mb-16 animate-element animate-delay-100" style={{ filter: 'blur(0px)' }}>
+              <div
+                onDragEnter={handleDragIn}
+                onDragLeave={handleDragOut}
+                onDragOver={handleDrag}
+                onDrop={handleDrop}
+                className={`
+                  relative group bg-[#2C2C2E] rounded-3xl border-2 border-dashed transition-all duration-500
+                  ${isDragging ? 'border-white/50 bg-white/5 scale-[1.02] shadow-2xl shadow-white/10' : 'border-[#3F3F46] hover:border-white/30 hover:bg-white/5'}
+                  ${file ? 'border-white/50 bg-white/5' : ''}
+                  p-12 sm:p-16 shadow-lg
+                `}
+              >
+                <div className="flex flex-col items-center text-center space-y-6">
+                  <div className={`
+                    w-20 h-20 rounded-2xl flex items-center justify-center transition-all duration-500
+                    ${file ? 'bg-white scale-110 shadow-lg' : 'bg-[#3F3F46] group-hover:bg-white/10'}
+                  `}>
+                    {file ? (
+                      <CheckCircle2 className="w-10 h-10 text-gray-900" />
+                    ) : (
+                      <Upload className={`w-10 h-10 transition-colors duration-300 ${isDragging ? 'text-white' : 'text-[#A1A1AA] group-hover:text-white'}`} />
+                    )}
                   </div>
+                  
+                  <div className="space-y-2">
+                    <label
+                      htmlFor="file-upload"
+                      className="cursor-pointer inline-flex items-center gap-2 px-6 py-3 bg-white text-gray-900 rounded-xl font-medium text-sm shadow-lg hover:bg-white/90 transition-all duration-300 hover:scale-105 active:scale-95"
+                    >
+                      <FileAudio className="w-4 h-4" />
+                      Choose Audio File
+                    </label>
+                    <input
+                      id="file-upload"
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".wav"
+                      onChange={handleFileChange}
+                      className="sr-only"
+                    />
+                    <p className="text-sm text-[#A1A1AA] mt-3">
+                      or drag and drop your file here
+                    </p>
+                  </div>
+
+                  {file && (
+                    <div className="mt-4 px-4 py-3 bg-[#3F3F46] rounded-xl border border-[#3F3F46] shadow-sm animate-element" style={{ filter: 'blur(0px)' }}>
+                      <div className="flex items-center gap-3">
+                        <FileAudio className="w-5 h-5 text-white shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-white truncate">{file.name}</p>
+                          <p className="text-xs text-[#A1A1AA]">{(file.size / 1024).toFixed(2)} KB</p>
+                        </div>
+                        <button
+                          onClick={() => {
+                            setFile(null);
+                            if (fileInputRef.current) fileInputRef.current.value = '';
+                          }}
+                          className="text-[#A1A1AA] hover:text-white transition-colors"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {/* Upload Button */}
-              <div className="mt-8 flex flex-col items-center gap-4">
-                <label htmlFor="file-upload" className="cursor-pointer">
-                  <button className="bg-white text-gray-900 border-0 rounded-lg px-8 py-3 text-base font-semibold cursor-pointer inline-flex items-center gap-2 transition-all duration-200 shadow-lg shadow-white/30 hover:shadow-xl hover:shadow-white/40 hover:bg-white/90">
-                    Upload .WAV File
-                  </button>
-                </label>
-                <input id="file-upload" type="file" accept=".wav" onChange={handleFileChange} className="sr-only" />
-                <span className="text-[#AAAAAA] text-center text-sm">{file ? file.name : "No file chosen"}</span>
+              {/* Diagnose Button */}
+              <div className="mt-8 text-center animate-element animate-delay-300" style={{ filter: 'blur(0px)' }}>
+                <button
+                  onClick={handleDiagnose}
+                  disabled={!file || isDiagnosing}
+                  className={`
+                    group relative px-10 py-4 rounded-2xl font-semibold text-base
+                    transition-all duration-500 transform
+                    ${file && !isDiagnosing
+                      ? 'bg-white text-gray-900 shadow-xl hover:bg-white/90 hover:scale-105 active:scale-95'
+                      : 'bg-[#3F3F46] text-[#A1A1AA] cursor-not-allowed'
+                    }
+                  `}
+                >
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    {isDiagnosing ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Analyzing...
+                      </>
+                    ) : (
+                      <>
+                        Start Diagnosis
+                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                      </>
+                    )}
+                  </span>
+                </button>
               </div>
-
-              {/* Start Diagnosis Button */}
-              <button 
-                onClick={handleDiagnose} 
-                disabled={!file || isDiagnosing}
-                className="mt-8 !bg-white !text-gray-900 border-0 rounded-lg px-8 py-4 text-lg font-semibold cursor-pointer inline-flex items-center gap-3 transition-all duration-200 shadow-lg shadow-white/30 hover:shadow-xl hover:shadow-white/40 hover:bg-white/90 disabled:opacity-50 disabled:cursor-not-allowed disabled:!bg-white disabled:!text-gray-900"
-              >
-                {isDiagnosing ? "Diagnosing..." : "Start Diagnosis"}
-                {!isDiagnosing && <ArrowRight className="w-5 h-5" />}
-              </button>
             </div>
+
+            {/* Results Section */}
             {loadingReports ? (
-              <p className="text-center text-[#AAAAAA] mt-8">Loading past reports...</p>
+              <div className="max-w-2xl mx-auto animate-element" style={{ filter: 'blur(0px)' }}>
+                <div className="bg-[#2C2C2E] rounded-3xl p-12 border border-[#3F3F46] shadow-lg">
+                  <div className="flex flex-col items-center justify-center space-y-4">
+                    <svg className="animate-spin h-8 w-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <p className="text-[#A1A1AA] font-medium">Loading reports...</p>
+                  </div>
+                </div>
+              </div>
             ) : (
-              <div className="space-y-8 mt-8">
+              <div className="space-y-6 max-w-4xl mx-auto">
+                {/* Current Report */}
                 {report && (
-                  <div className="bg-[#27272A] p-8 rounded-lg border border-[#27272A]">
-                    <h2 className="text-2xl font-semibold text-white mb-4">Diagnosis Result</h2>
-                    <div className="text-xl font-medium text-[#E0E0E0] mb-4">
-                      Predicted Condition: <span className="text-white">{report.prediction}</span>
+                  <div className="bg-[#2C2C2E] rounded-3xl p-8 border border-[#3F3F46] shadow-xl animate-element animate-delay-200" style={{ filter: 'blur(0px)' }}>
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-lg">
+                        <CheckCircle2 className="w-6 h-6 text-gray-900" />
+                      </div>
+                      <h2 className="text-2xl font-semibold text-white">Diagnosis Result</h2>
                     </div>
-                    <div className="text-[#AAAAAA] mb-4">Analysis Date: {formatDateTime(report.analysisDate)}</div>
+                    
+                    <div className="space-y-4 pl-2">
+                      <div className="flex items-start gap-4">
+                        <div className="flex-1">
+                          <p className="text-sm text-[#A1A1AA] mb-1">Predicted Condition</p>
+                          <p className="text-2xl font-semibold text-white">
+                            {report.prediction}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="pt-4 border-t border-[#3F3F46]">
+                        <p className="text-sm text-[#A1A1AA] mb-1">Analysis Date</p>
+                        <p className="text-base text-white font-medium">{formatDateTime(report.analysisDate)}</p>
+                      </div>
+                    </div>
                   </div>
                 )}
-                {/* Past Reports Card */}
-                <div className="bg-[#27272A] rounded-lg border border-[#27272A] p-6">
-                  <h2 className="text-xl font-semibold text-white mb-4">Past Reports</h2>
-                  <div className="space-y-4">
-                    {pastReports.length === 0 ? (
-                      <p className="text-[#AAAAAA] text-sm">No past reports found.</p>
-                    ) : (
-                      <div className="space-y-3">
-                        {pastReports.map((rep: any) => (
-                          <div key={rep._id} className="border-b border-[#27272A] pb-3 last:border-0">
-                            <div className="flex items-start justify-between">
-                              <div className="flex-1">
-                                <p className="text-sm font-medium text-[#E0E0E0] mb-1">
-                                  {formatDateTime(rep.analysisDate)}
-                                </p>
-                                <p className="text-sm text-[#AAAAAA]">{rep.prediction}</p>
-                              </div>
-                              <button 
-                                onClick={() => handleDownloadPDF(rep.pdfUrl)} 
-                                className="text-sm text-white hover:underline ml-4"
-                              >
-                                Download
-                              </button>
-                            </div>
-                          </div>
-                        ))}
+
+                {/* Past Reports */}
+                <div className="bg-[#2C2C2E] rounded-3xl p-8 border border-[#3F3F46] shadow-xl animate-element animate-delay-300" style={{ filter: 'blur(0px)' }}>
+                  <h2 className="text-2xl font-semibold text-white mb-6">Past Reports</h2>
+                  
+                  {pastReports.length === 0 ? (
+                    <div className="text-center py-12">
+                      <div className="w-16 h-16 rounded-2xl bg-[#3F3F46] flex items-center justify-center mx-auto mb-4">
+                        <FileAudio className="w-8 h-8 text-[#A1A1AA]" />
                       </div>
-                    )}
-                  </div>
+                      <p className="text-[#A1A1AA] font-medium">No past reports found.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {pastReports.map((rep: any, index: number) => (
+                        <div
+                          key={rep._id}
+                          className="group bg-[#3F3F46] rounded-2xl p-5 border border-[#3F3F46] hover:border-white/20 hover:bg-white/5 transition-all duration-300 hover:-translate-y-0.5"
+                          style={{ animationDelay: `${(index + 1) * 0.1}s` }}
+                        >
+                          <div className="flex items-center justify-between gap-4">
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold text-white mb-1">{rep.prediction}</p>
+                              <p className="text-xs text-[#A1A1AA]">{formatShortDate(rep.analysisDate)}</p>
+                            </div>
+                            <button
+                              onClick={() => handleDownloadPDF(rep.pdfUrl)}
+                              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#2C2C2E] hover:bg-white hover:text-gray-900 text-white transition-all duration-300 text-sm font-medium group-hover:scale-105"
+                            >
+                              <Download className="w-4 h-4" />
+                              Download
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
           </section>
         </main>
       </div>
+
+      <style>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        .animate-element {
+          animation: fadeInUp 0.6s ease-out forwards;
+          opacity: 0;
+          filter: blur(0px) !important;
+        }
+        
+        .animate-delay-100 { animation-delay: 0.1s; }
+        .animate-delay-200 { animation-delay: 0.2s; }
+        .animate-delay-300 { animation-delay: 0.3s; }
+        .animate-delay-400 { animation-delay: 0.4s; }
+      `}</style>
     </div>
   );
 };

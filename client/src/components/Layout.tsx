@@ -1,7 +1,8 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import AppSidebar from './AppSidebar';
+import DashboardHeader from './DashboardHeader';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -9,6 +10,8 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
+  const location = useLocation();
+  const isDashboardRoute = location.pathname.startsWith('/dashboard');
 
   // Show loading state while checking authentication
   if (isLoading) {
@@ -26,8 +29,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="shrink-0">
           <AppSidebar />
         </div>
-        <main className="flex-1 overflow-y-auto w-0 min-w-0">
-          {children}
+        <main className="flex-1 flex flex-col overflow-hidden w-0 min-w-0">
+          {isDashboardRoute && <DashboardHeader />}
+          <div className="flex-1 overflow-y-auto">
+            {children}
+          </div>
         </main>
       </div>
     );

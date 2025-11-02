@@ -2,6 +2,7 @@ import { chatWithBot } from "../controllers/aimodel.controller.js";
 import { diagnose, getReports } from "../controllers/aimodel.controller.js";
 import { Router } from "express";
 import verifyToken from "../middlewares/auth.middleware.js";
+import checkAndDeductCredit from "../middlewares/credit.middleware.js";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -44,7 +45,7 @@ router.post("/chat", chatWithBot);
 
 
 
-router.post("/process_audio",verifyToken, upload.single("audio"), diagnose);
+router.post("/process_audio",verifyToken, checkAndDeductCredit, upload.single("audio"), diagnose);
 
 
 router.get("/reports",verifyToken,getReports);

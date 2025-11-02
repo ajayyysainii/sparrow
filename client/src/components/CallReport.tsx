@@ -7,9 +7,9 @@ interface CallReportProps {
 }
 
 interface ReportPayload {
-  sentimentAnalysis?: 'Positive' | 'Neutral' | 'Negative';
-  confidenceLevel?: number;
-  vocabularyRichness?: number;
+  sentimentAnalysis?: 'Positive' | 'Neutral' | 'Negative' | null;
+  confidenceLevel?: number | null;
+  vocabularyRichness?: number | null;
   speakingTimeSplit?: {
     caller?: number;
     callee?: number;

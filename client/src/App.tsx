@@ -19,6 +19,7 @@ import LipTrillsPage from './pages/LipTrillsPage';
 import DictionPracticePage from './pages/DictionPracticePage';
 import LandingPage from './pages/LandingPage';
 import HealthCheck from './components/HealthCheck';
+import UpgradePage from './pages/UpgradePage';
 import { AuthProvider } from './contexts/AuthContext';
 import "./App.css";
 
@@ -137,6 +138,13 @@ function App() {
             <Layout>
               <ProtectedRoute>
                 <HealthCheck />
+              </ProtectedRoute>
+            </Layout>
+          } />
+          <Route path="/dashboard/upgrade" element={
+            <Layout>
+              <ProtectedRoute>
+                <UpgradePage />
               </ProtectedRoute>
             </Layout>
           } />

@@ -27,13 +27,19 @@ export class AuthController {
         { expiresIn: '7d' }
       );
 
+      // Reload user to get default credits
+      const newUser = await User.findById(user._id).select('-password');
+      
       res.status(201).json({
         message: 'User created successfully',
         token,
         user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
+          id: newUser._id,
+          name: newUser.name,
+          email: newUser.email,
+          credits: newUser.credits,
+          isPremium: newUser.isPremiumValid(),
+          premiumExpiry: newUser.premiumExpiry,
         },
       });
     } catch (error) {
@@ -76,6 +82,9 @@ export class AuthController {
           id: user._id,
           name: user.name,
           email: user.email,
+          credits: user.credits,
+          isPremium: user.isPremiumValid(),
+          premiumExpiry: user.premiumExpiry,
         },
       });
     } catch (error) {
@@ -94,6 +103,9 @@ export class AuthController {
           id: user._id,
           name: user.name,
           email: user.email,
+          credits: user.credits,
+          isPremium: user.isPremiumValid(),
+          premiumExpiry: user.premiumExpiry,
         },
       });
     } catch (error) {

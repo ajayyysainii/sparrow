@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -7,9 +8,9 @@ interface CallReportVisualizationProps {
 }
 
 interface ReportPayload {
-  sentimentAnalysis?: 'Positive' | 'Neutral' | 'Negative';
-  confidenceLevel?: number;
-  vocabularyRichness?: number;
+  sentimentAnalysis?: 'Positive' | 'Neutral' | 'Negative' | null;
+  confidenceLevel?: number | null;
+  vocabularyRichness?: number | null;
   speakingTimeSplit?: {
     caller?: number;
     callee?: number;
@@ -23,6 +24,7 @@ interface GetReportResponse {
 }
 
 const CallReportVisualization: React.FC<CallReportVisualizationProps> = ({ callId }) => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(true);
   const [generating, setGenerating] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -92,8 +94,22 @@ const CallReportVisualization: React.FC<CallReportVisualizationProps> = ({ callI
         const reportRes = await axios.get<GetReportResponse>(`${apiBase}/call/call-report/${callId}`, { headers });
         setReport(reportRes.data?.report || null);
         setGenerating(false);
+        // Refresh user data to update credits
+        window.location.reload();
         return;
       } catch (err: any) {
+        // Check for credit/payment errors
+        if (err.response?.status === 403 || err.response?.data?.needsUpgrade) {
+          const shouldUpgrade = window.confirm(
+            err.response?.data?.message || "No credits remaining. Would you like to upgrade to Premium?"
+          );
+          if (shouldUpgrade) {
+            navigate("/dashboard/upgrade");
+          }
+          setGenerating(false);
+          return;
+        }
+        
         // If it times out or errors, report generation was triggered - we'll poll for status
         if (err.code === 'ECONNABORTED' || err.response?.status === 500) {
           console.log('Report generation initiated, polling for completion...');
@@ -119,6 +135,8 @@ const CallReportVisualization: React.FC<CallReportVisualizationProps> = ({ callI
             const res = await axios.get<GetReportResponse>(`${apiBase}/call/call-report/${callId}`, { headers });
             setReport(res.data?.report || null);
             setGenerating(false);
+            // Refresh user data to update credits
+            window.location.reload();
           } else if (pollCount >= maxPolls) {
             clearInterval(pollInterval);
             setGenerating(false);
@@ -232,7 +250,7 @@ const CallReportVisualization: React.FC<CallReportVisualizationProps> = ({ callI
         {/* Confidence & Vocabulary */}
         <div className="space-y-4">
           {/* Confidence */}
-          {report.confidenceLevel !== undefined && (
+          {report.confidenceLevel !== undefined && report.confidenceLevel !== null && (
             <div>
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs text-[#A0AEC0]">Confidence</p>
@@ -248,7 +266,7 @@ const CallReportVisualization: React.FC<CallReportVisualizationProps> = ({ callI
           )}
 
           {/* Vocabulary */}
-          {report.vocabularyRichness !== undefined && (
+          {report.vocabularyRichness !== undefined && report.vocabularyRichness !== null && (
             <div>
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs text-[#A0AEC0]">Vocabulary</p>
