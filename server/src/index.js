@@ -22,44 +22,9 @@ const startServer = async () => {
             throw new Error("Database connection not established");
         }
 
-        // Set up middleware - CORS configuration
-        const allowedOrigins = [
-            process.env.FRONTEND_URL // Additional frontend URL from env
-        ].filter(Boolean); // Remove undefined values
-        
+        // Set up middleware - CORS configuration (allow all origins)
         app.use(cors({
-            origin: function (origin, callback) {
-                // Allow requests with no origin (like mobile apps, Postman, etc.)
-                if (!origin) return callback(null, true);
-                
-                // Check if origin is in allowed list
-                if (allowedOrigins.includes(origin)) {
-                    callback(null, true);
-                } else {
-                    // Default to development mode if NODE_ENV is not explicitly set to 'production'
-                    const isProduction = process.env.NODE_ENV === 'production';
-                    
-                    if (!isProduction) {
-                        // In development, allow localhost and 127.0.0.1 on any port (http or https)
-                        const isLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) ||
-                                           origin.startsWith('http://localhost:') || 
-                                           origin.startsWith('http://127.0.0.1:') ||
-                                           origin.startsWith('https://localhost:') ||
-                                           origin.startsWith('https://127.0.0.1:');
-                        if (isLocalhost) {
-                            callback(null, true);
-                        } else {
-                            // Log for debugging
-                            console.log('CORS blocked origin (dev mode):', origin);
-                            callback(new Error('Not allowed by CORS'));
-                        }
-                    } else {
-                        // In production, only allow specific origins
-                        console.log('CORS blocked origin (prod mode):', origin);
-                        callback(new Error('Not allowed by CORS'));
-                    }
-                }
-            },
+            origin: true, // Allow all origins
             credentials: true,
             methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
             allowedHeaders: ['Content-Type', 'Authorization'],
