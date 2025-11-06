@@ -52,56 +52,56 @@ const DashboardHeader: React.FC = () => {
         backdropFilter: 'blur(30px) saturate(180%)',
       }}
     >
-      <div className="flex h-14 items-center justify-end px-6">
+      <div className="flex h-14 items-center justify-end px-3 md:px-6 overflow-x-auto">
         {/* Search and Filters */}
     
           
 
         {/* Points, Streaks, and Credits Display */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 md:gap-3 shrink-0">
           {/* Credits */}
           <div 
             onClick={() => !user?.isPremium && navigate('/dashboard/upgrade')}
-            className={`flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-[#2C2C2E]/40 border border-white/10 hover:bg-[#2C2C2E]/60 hover:border-[#6366f1]/40 transition-all duration-300 group ${!user?.isPremium ? 'cursor-pointer' : 'cursor-default'}`}
+            className={`flex items-center gap-2 md:gap-2.5 px-2.5 md:px-3.5 py-2 rounded-xl bg-[#2C2C2E]/40 border border-white/10 hover:bg-[#2C2C2E]/60 hover:border-[#6366f1]/40 transition-all duration-300 group ${!user?.isPremium ? 'cursor-pointer' : 'cursor-default'}`}
           >
             <div className="relative">
               {user?.isPremium ? (
-                <Crown className="h-4 w-4 text-[#FFD700] group-hover:scale-110 transition-transform duration-300" />
+                <Crown className="h-3.5 w-3.5 md:h-4 md:w-4 text-[#FFD700] group-hover:scale-110 transition-transform duration-300" />
               ) : (
-                <Coins className="h-4 w-4 text-[#6366f1] group-hover:scale-110 transition-transform duration-300" />
+                <Coins className="h-3.5 w-3.5 md:h-4 md:w-4 text-[#6366f1] group-hover:scale-110 transition-transform duration-300" />
               )}
             </div>
             <div className="flex flex-col items-start">
-              <span className="text-[10px] font-medium text-[#8E8E93] leading-none uppercase tracking-wider">
+              <span className="text-[9px] md:text-[10px] font-medium text-[#8E8E93] leading-none uppercase tracking-wider">
                 {user?.isPremium ? 'Premium' : 'Credits'}
               </span>
-              <span className="text-[15px] font-semibold text-white leading-tight mt-0.5 tracking-tight">
+              <span className="text-[13px] md:text-[15px] font-semibold text-white leading-tight mt-0.5 tracking-tight">
                 {user?.isPremium ? '∞' : (user?.credits?.toString() || '0')}
               </span>
             </div>
           </div>
 
           {/* Streak */}
-          <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-[#2C2C2E]/40 border border-white/10 hover:bg-[#2C2C2E]/60 hover:border-[#FF6B35]/40 transition-all duration-300 group cursor-default">
+          <div className="flex items-center gap-2 md:gap-2.5 px-2.5 md:px-3.5 py-2 rounded-xl bg-[#2C2C2E]/40 border border-white/10 hover:bg-[#2C2C2E]/60 hover:border-[#FF6B35]/40 transition-all duration-300 group cursor-default">
             <div className="relative">
-              <Flame className="h-4 w-4 text-[#FF6B35] group-hover:scale-110 transition-transform duration-300" />
+              <Flame className="h-3.5 w-3.5 md:h-4 md:w-4 text-[#FF6B35] group-hover:scale-110 transition-transform duration-300" />
             </div>
             <div className="flex flex-col items-start">
-              <span className="text-[10px] font-medium text-[#8E8E93] leading-none uppercase tracking-wider">Streak</span>
-              <span className="text-[15px] font-semibold text-white leading-tight mt-0.5 tracking-tight">
+              <span className="text-[9px] md:text-[10px] font-medium text-[#8E8E93] leading-none uppercase tracking-wider">Streak</span>
+              <span className="text-[13px] md:text-[15px] font-semibold text-white leading-tight mt-0.5 tracking-tight">
                 {stats?.streak?.toString() || '0'}
               </span>
             </div>
           </div>
 
           {/* Points */}
-          <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-[#2C2C2E]/40 border border-white/10 hover:bg-[#2C2C2E]/60 hover:border-[#FFD700]/40 transition-all duration-300 group cursor-default">
+          <div className="flex items-center gap-2 md:gap-2.5 px-2.5 md:px-3.5 py-2 rounded-xl bg-[#2C2C2E]/40 border border-white/10 hover:bg-[#2C2C2E]/60 hover:border-[#FFD700]/40 transition-all duration-300 group cursor-default">
             <div className="relative">
-              <Star className="h-4 w-4 text-[#FFD700] group-hover:scale-110 transition-transform duration-300 fill-[#FFD700]/20 group-hover:fill-[#FFD700]/40" />
+              <Star className="h-3.5 w-3.5 md:h-4 md:w-4 text-[#FFD700] group-hover:scale-110 transition-transform duration-300 fill-[#FFD700]/20 group-hover:fill-[#FFD700]/40" />
             </div>
             <div className="flex flex-col items-start">
-              <span className="text-[10px] font-medium text-[#8E8E93] leading-none uppercase tracking-wider">Points</span>
-              <span className="text-[15px] font-semibold text-white leading-tight mt-0.5 tracking-tight">
+              <span className="text-[9px] md:text-[10px] font-medium text-[#8E8E93] leading-none uppercase tracking-wider">Points</span>
+              <span className="text-[13px] md:text-[15px] font-semibold text-white leading-tight mt-0.5 tracking-tight">
                 {stats?.totalPoints?.toString() || '0'}
               </span>
             </div>

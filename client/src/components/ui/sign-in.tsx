@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 
 // --- TYPE DEFINITIONS ---
@@ -82,7 +83,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({
         className="absolute top-8 left-8 z-20"
       >
         <h1 className="text-2xl font-semibold text-white tracking-tight">
-          Sparrow
+          <Link to="/" className="no-underline">Sparrow</Link>
         </h1>
       </motion.div>
 

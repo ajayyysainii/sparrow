@@ -275,15 +275,6 @@ const DashboardPage: React.FC = () => {
         color: 'text-green-400',
         decreaseIsGood: false, // Increase is good
       },
-      {
-        title: 'Resolution Rate',
-        value: '94%',
-        change: '+5.3%',
-        trend: 'up' as const,
-        icon: TrendingUp,
-        color: 'text-white',
-        decreaseIsGood: false, // Increase is good
-      },
     ],
     [stats, totalCost]
   );
@@ -293,21 +284,21 @@ const DashboardPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#1C1C1E] text-white">
       {/* Main Content */}
-      <div className="max-w-[1400px] mx-auto p-6 space-y-8">
+      <div className="max-w-[1400px] mx-auto p-4 md:p-6 space-y-6 md:space-y-8">
         {/* Page Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
-          <p className="text-[#AAAAAA]">
+          <h1 className="text-2xl md:text-3xl font-bold mb-2">Dashboard</h1>
+          <p className="text-sm md:text-base text-[#AAAAAA]">
             Welcome back! Here's what's happening with your calls today.
           </p>
         </motion.div>
 
         {/* Metrics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {metrics.map((metric, index) => {
             const Icon = metric.icon;
             return (
@@ -321,28 +312,28 @@ const DashboardPage: React.FC = () => {
               >
                 <Card className="border-[#27272A] bg-[#27272A] hover:border-white/50 hover:shadow-lg hover:shadow-white/10 transition-all duration-200 cursor-pointer">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-[#AAAAAA] uppercase tracking-wide">
+                    <CardTitle className="text-xs md:text-sm font-medium text-[#AAAAAA] uppercase tracking-wide">
                       {metric.title}
                     </CardTitle>
-                    <Icon className={`h-4 w-4 ${metric.color}`} />
+                    <Icon className={`h-3.5 w-3.5 md:h-4 md:w-4 ${metric.color}`} />
                   </CardHeader>
                   <CardContent>
                     <div className="flex items-baseline gap-2">
-                      <CardTitle className="text-3xl font-bold text-white">
+                      <CardTitle className="text-2xl md:text-3xl font-bold text-white">
                         {metric.value}
                       </CardTitle>
                       {metric.change && (
                         <div
-                          className={`flex items-center gap-1 text-sm font-medium ${
+                          className={`flex items-center gap-1 text-xs md:text-sm font-medium ${
                             metric.trend === 'up'
                               ? 'text-[#48BB78]'
                               : 'text-[#F56565]'
                           }`}
                         >
                           {metric.trend === 'up' ? (
-                            <ChevronUp className="h-4 w-4" />
+                            <ChevronUp className="h-3 w-3 md:h-4 md:w-4" />
                           ) : (
-                            <ChevronDown className="h-4 w-4" />
+                            <ChevronDown className="h-3 w-3 md:h-4 md:w-4" />
                           )}
                           {metric.change}
                         </div>
@@ -356,7 +347,7 @@ const DashboardPage: React.FC = () => {
         </div>
 
         {/* Charts Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
           {/* Voice Health Metrics Chart */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -366,19 +357,19 @@ const DashboardPage: React.FC = () => {
           >
             <Card className="border-[#27272A] bg-[#27272A] hover:border-white/50 hover:shadow-lg hover:shadow-white/10 transition-all duration-200">
               <CardHeader>
-                <CardTitle>Voice Health Metrics</CardTitle>
-                <CardDescription className="text-[#AAAAAA]">
+                <CardTitle className="text-base md:text-lg">Voice Health Metrics</CardTitle>
+                <CardDescription className="text-xs md:text-sm text-[#AAAAAA]">
                   Jitter and Shimmer over time
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 {dashboardLoading ? (
-                  <div className="flex items-center justify-center h-[300px]">
-                    <div className="text-[#AAAAAA]">Loading chart data...</div>
+                  <div className="flex items-center justify-center h-[250px] md:h-[300px]">
+                    <div className="text-xs md:text-sm text-[#AAAAAA]">Loading chart data...</div>
                   </div>
                 ) : weeklyData.length === 0 ? (
-                  <div className="flex items-center justify-center h-[300px]">
-                    <div className="text-[#AAAAAA]">No data available</div>
+                  <div className="flex items-center justify-center h-[250px] md:h-[300px]">
+                    <div className="text-xs md:text-sm text-[#AAAAAA]">No data available</div>
                   </div>
                 ) : (
                   <ResponsiveContainer width="100%" height={300}>
@@ -485,19 +476,19 @@ const DashboardPage: React.FC = () => {
           >
             <Card className="border-[#27272A] bg-[#27272A] hover:border-white/50 hover:shadow-lg hover:shadow-white/10 transition-all duration-200">
               <CardHeader>
-                <CardTitle>Prediction Distribution</CardTitle>
-                <CardDescription className="text-[#AAAAAA]">
+                <CardTitle className="text-base md:text-lg">Prediction Distribution</CardTitle>
+                <CardDescription className="text-xs md:text-sm text-[#AAAAAA]">
                   Voice health predictions breakdown
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 {dashboardLoading ? (
-                  <div className="flex items-center justify-center h-[300px]">
-                    <div className="text-[#AAAAAA]">Loading chart data...</div>
+                  <div className="flex items-center justify-center h-[250px] md:h-[300px]">
+                    <div className="text-xs md:text-sm text-[#AAAAAA]">Loading chart data...</div>
                   </div>
                 ) : predictionData.length === 0 ? (
-                  <div className="flex items-center justify-center h-[300px]">
-                    <div className="text-[#AAAAAA]">No prediction data available</div>
+                  <div className="flex items-center justify-center h-[250px] md:h-[300px]">
+                    <div className="text-xs md:text-sm text-[#AAAAAA]">No prediction data available</div>
                   </div>
                 ) : (
                   <ResponsiveContainer width="100%" height={300}>
@@ -547,10 +538,10 @@ const DashboardPage: React.FC = () => {
           transition={{ delay: 0.6 }}
         >
           <div className="space-y-4">
-            <div className="flex flex-row items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
-                <h2 className="text-xl font-semibold text-white">Recent Calls</h2>
-                <p className="text-sm text-[#AAAAAA] mt-1">
+                <h2 className="text-lg md:text-xl font-semibold text-white">Recent Calls</h2>
+                <p className="text-xs md:text-sm text-[#AAAAAA] mt-1">
                   Latest 5 calls from your history
                 </p>
               </div>
@@ -563,7 +554,7 @@ const DashboardPage: React.FC = () => {
                 View All
               </Button>
             </div>
-            <div>
+            <div className="overflow-x-auto">
               {loading ? (
                 <div className="flex items-center justify-center py-12">
                   <div className="text-[#AAAAAA]">Loading calls...</div>
@@ -577,20 +568,20 @@ const DashboardPage: React.FC = () => {
                   <div className="text-[#AAAAAA]">No calls found</div>
                 </div>
               ) : (
-                <div className="overflow-hidden rounded-lg">
-                  <table className="w-full">
+                <div className="overflow-hidden rounded-lg min-w-full">
+                  <table className="w-full min-w-[600px]">
                     <thead>
                       <tr className="border-b border-[#3F3F46]">
-                        <th className="text-left p-4 text-xs font-medium uppercase tracking-wide text-[#AAAAAA]">
+                        <th className="text-left p-3 md:p-4 text-xs font-medium uppercase tracking-wide text-[#AAAAAA]">
                           Caller
                         </th>
-                        <th className="text-left p-4 text-xs font-medium uppercase tracking-wide text-[#AAAAAA]">
+                        <th className="text-left p-3 md:p-4 text-xs font-medium uppercase tracking-wide text-[#AAAAAA]">
                           Duration
                         </th>
-                        <th className="text-left p-4 text-xs font-medium uppercase tracking-wide text-[#AAAAAA]">
+                        <th className="text-left p-3 md:p-4 text-xs font-medium uppercase tracking-wide text-[#AAAAAA]">
                           Cost
                         </th>
-                        <th className="text-left p-4 text-xs font-medium uppercase tracking-wide text-[#AAAAAA]">
+                        <th className="text-left p-3 md:p-4 text-xs font-medium uppercase tracking-wide text-[#AAAAAA]">
                           Date
                         </th>
                       </tr>
@@ -601,10 +592,10 @@ const DashboardPage: React.FC = () => {
                           key={call.id}
                           className="border-b border-[#27272A] hover:bg-white/5 transition-colors"
                         >
-                          <td className="p-4 font-medium text-[#E0E0E0]">{call.caller}</td>
-                          <td className="p-4 text-[#AAAAAA]">{call.duration}</td>
-                          <td className="p-4 text-[#AAAAAA]">${call.cost.toFixed(2)}</td>
-                          <td className="p-4 text-[#AAAAAA]">{call.date}</td>
+                          <td className="p-3 md:p-4 text-sm md:text-base font-medium text-[#E0E0E0]">{call.caller}</td>
+                          <td className="p-3 md:p-4 text-sm md:text-base text-[#AAAAAA]">{call.duration}</td>
+                          <td className="p-3 md:p-4 text-sm md:text-base text-[#AAAAAA]">${call.cost.toFixed(2)}</td>
+                          <td className="p-3 md:p-4 text-sm md:text-base text-[#AAAAAA]">{call.date}</td>
                         </tr>
                       ))}
                     </tbody>

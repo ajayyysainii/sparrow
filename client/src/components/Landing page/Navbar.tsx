@@ -10,7 +10,7 @@ export default function Navbar() {
   };
 
   return (
-    <header className="relative z-20 w-full h-16 grid grid-cols-[1fr_auto_1fr] items-center px-6 gap-3 bg-transparent mix-blend-screen backdrop-blur-sm">
+    <header className="pt-5 relative z-20 w-full h-16 grid grid-cols-[1fr_auto_1fr] items-center px-6 gap-3 bg-transparent mix-blend-screen backdrop-blur-sm">
       {/* Left: Brand */}
       <Link to="/" className="flex items-center gap-3 no-underline">
          

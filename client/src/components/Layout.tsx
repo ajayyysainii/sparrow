@@ -1,8 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import AppSidebar from './AppSidebar';
 import DashboardHeader from './DashboardHeader';
+import { 
+  Sheet,
+  SheetContent, 
+  SheetTrigger 
+} from './ui/sheet';
+import { Menu } from 'lucide-react';
+import { Button } from './ui/button';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -12,6 +19,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
   const isDashboardRoute = location.pathname.startsWith('/dashboard');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Show loading state while checking authentication
   if (isLoading) {
@@ -26,12 +34,41 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   if (isAuthenticated) {
     return (
       <div className="flex h-screen w-full overflow-hidden bg-[#1C1C1E]">
-        <div className="shrink-0">
+        {/* Mobile Sidebar Toggle */}
+        <div className="md:hidden fixed top-0 left-0 z-[60] w-full">
+          <div className="flex items-center justify-between p-3 bg-[#1C1C1E] border-b border-[#27272A]">
+            <Link to="/dashboard" className="text-xl font-bold text-white">
+              Sparrow
+            </Link>
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="text-white hover:bg-white/10 shrink-0 [&_svg]:text-white [&_svg]:h-6 [&_svg]:w-6"
+                  aria-label="Open menu"
+                >
+                  <Menu className="h-6 w-6 text-white" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-64 p-0 bg-[#27272A] border-[#27272A]">
+                <AppSidebar onNavigation={() => setMobileMenuOpen(false)} />
+              </SheetContent>
+            </Sheet>
+          </div>
+        </div>
+
+        {/* Desktop Sidebar */}
+        <div className="hidden md:block shrink-0">
           <AppSidebar />
         </div>
         <main className="flex-1 flex flex-col overflow-hidden w-0 min-w-0">
-          {isDashboardRoute && <DashboardHeader />}
-          <div className="flex-1 overflow-y-auto">
+          {isDashboardRoute && (
+            <div className="hidden md:block">
+              <DashboardHeader />
+            </div>
+          )}
+          <div className="flex-1 overflow-y-auto pt-14 md:pt-0">
             {children}
           </div>
         </main>

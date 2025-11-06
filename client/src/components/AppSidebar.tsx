@@ -22,7 +22,11 @@ import {
   Heart
 } from 'lucide-react';
 
-const AppSidebar: React.FC = () => {
+interface AppSidebarProps {
+  onNavigation?: () => void;
+}
+
+const AppSidebar: React.FC<AppSidebarProps> = ({ onNavigation }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout, isAuthenticated } = useAuth();
@@ -33,6 +37,10 @@ const AppSidebar: React.FC = () => {
   const handleLogout = () => {
     logout();
     navigate('/');
+  };
+  
+  const handleNavigation = () => {
+    onNavigation?.();
   };
 
   if (!isAuthenticated) {
@@ -115,7 +123,7 @@ const AppSidebar: React.FC = () => {
   ];
 
   return (
-    <Sidebar className="border-r border-[#27272A] bg-[#27272A]">
+    <Sidebar className="border-r border-[#27272A] bg-[#27272A] h-full w-full md:h-screen md:w-64">
       <SidebarHeader className="border-b border-[#27272A] flex items-center justify-center">
         <Link 
           to="/dashboard" 
@@ -143,6 +151,7 @@ const AppSidebar: React.FC = () => {
                 <Link
                   to={item.href}
                   className="block"
+                  onClick={handleNavigation}
                 >
                   <Button
                     variant="ghost"
@@ -203,6 +212,7 @@ const AppSidebar: React.FC = () => {
                         key={route.href}
                         to={route.href}
                         className="block"
+                        onClick={handleNavigation}
                       >
                         <Button
                           variant="ghost"
@@ -265,6 +275,7 @@ const AppSidebar: React.FC = () => {
                         key={route.href}
                         to={route.href}
                         className="block"
+                        onClick={handleNavigation}
                       >
                         <Button
                           variant="ghost"
@@ -327,6 +338,7 @@ const AppSidebar: React.FC = () => {
                         key={route.href}
                         to={route.href}
                         className="block"
+                        onClick={handleNavigation}
                       >
                         <Button
                           variant="ghost"
@@ -355,7 +367,7 @@ const AppSidebar: React.FC = () => {
         
         {/* Upgrade to Pro - At the very bottom, just above user profile */}
         <div className="mb-3">
-          <Link to="/dashboard/upgrade" className="block">
+          <Link to="/dashboard/upgrade" className="block" onClick={handleNavigation}>
             <Button
               variant="ghost"
               className={`w-full justify-start gap-3 px-3 py-2.5 font-medium transition-all duration-200 ${
