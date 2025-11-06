@@ -36,10 +36,26 @@ const startServer = async () => {
                 if (allowedOrigins.includes(origin)) {
                     callback(null, true);
                 } else {
-                    // In development, allow localhost on any port
-                    if (process.env.NODE_ENV !== 'production' && origin.startsWith('http://localhost:')) {
-                        callback(null, true);
+                    // Default to development mode if NODE_ENV is not explicitly set to 'production'
+                    const isProduction = process.env.NODE_ENV === 'production';
+                    
+                    if (!isProduction) {
+                        // In development, allow localhost and 127.0.0.1 on any port (http or https)
+                        const isLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) ||
+                                           origin.startsWith('http://localhost:') || 
+                                           origin.startsWith('http://127.0.0.1:') ||
+                                           origin.startsWith('https://localhost:') ||
+                                           origin.startsWith('https://127.0.0.1:');
+                        if (isLocalhost) {
+                            callback(null, true);
+                        } else {
+                            // Log for debugging
+                            console.log('CORS blocked origin (dev mode):', origin);
+                            callback(new Error('Not allowed by CORS'));
+                        }
                     } else {
+                        // In production, only allow specific origins
+                        console.log('CORS blocked origin (prod mode):', origin);
                         callback(new Error('Not allowed by CORS'));
                     }
                 }
