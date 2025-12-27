@@ -126,7 +126,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ onNavigation }) => {
     <Sidebar className="border-r border-[#27272A] bg-[#27272A] h-full w-full md:h-screen md:w-64">
       <SidebarHeader className="border-b border-[#27272A] flex items-center justify-center">
         <Link 
-          to="/dashboard" 
+          to="/" 
           className="flex items-center gap-3 text-xl font-bold text-white no-underline hover:opacity-80 transition-opacity"
         >
           <span>Sparrow</span>
